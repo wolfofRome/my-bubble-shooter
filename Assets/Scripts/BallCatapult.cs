@@ -10,6 +10,7 @@ public class BallCatapult : MonoBehaviour
 {
     [SerializeField] private Ball _currentBall;
     [SerializeField] private float _maxPullBackDistance = 2f;
+    [SerializeField] private float _nonShootPullBackDistance = 0.5f;
 
     private Camera _cameraMain;
 
@@ -29,12 +30,6 @@ public class BallCatapult : MonoBehaviour
         _cameraMain = Camera.main;
     }
 
-
-    private void Update()
-    {
-
-    }
-
     private void OnMouseDrag()
     {
         PullBackBall();
@@ -42,17 +37,32 @@ public class BallCatapult : MonoBehaviour
 
     private void OnMouseUp()
     {
-        
+        if (GetPullBackDistanse() <= _nonShootPullBackDistance)
+        {
+            _currentBall.RbBall.MovePosition(CatapultRb.position);
+            return;
+        }
+
+        Vector2 flyDirection = (GetMousePosition() - CatapultRb.position).normalized * -1;
+        _currentBall.BallFlying(flyDirection);
     }
 
     private void PullBackBall()
     {
+
+        
         Vector2 mousePosition = GetMousePosition();
 
         if (GetPullBackDistanse() > _maxPullBackDistance)
-            _currentBall.RbBall.position = CatapultRb.position + (mousePosition - CatapultRb.position).normalized * _maxPullBackDistance;
+        {
+            _currentBall.RbBall.MovePosition(CatapultRb.position + (mousePosition - CatapultRb.position).normalized * _maxPullBackDistance);
+
+        }
         else
-            _currentBall.RbBall.position = mousePosition;
+        {
+            _currentBall.RbBall.MovePosition(mousePosition);
+        }
+            
     }
 
     private void ShootBall()
