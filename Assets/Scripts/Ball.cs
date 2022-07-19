@@ -6,6 +6,7 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     private bool _isBallCollide = false;
+    private Vector2 _ballOffset;
 
     private Rigidbody2D _rbBall;
     public Rigidbody2D RbBall
@@ -24,6 +25,7 @@ public class Ball : MonoBehaviour
     private void Start()
     {
         _cameraMain = Camera.main;
+        _ballOffset = new Vector2(gameObject.transform.localScale.x/2, gameObject.transform.localScale.y);
     }
 
     public Coroutine BallFlying(Vector2 flyDirection)
@@ -35,9 +37,17 @@ public class Ball : MonoBehaviour
     {
         while (!_isBallCollide)
         {
-            RbBall.position += flyDirection;
+            if (_cameraMain.WorldToViewportPoint(RbBall.position + _ballOffset).x >= _cameraMain.rect.max.x || 
+                _cameraMain.WorldToViewportPoint(RbBall.position - _ballOffset).x <= _cameraMain.rect.min.x)
+            {
+                flyDirection.x *= -1;
+            }
+                
+            RbBall.position += flyDirection * 0.5f;
             yield return new WaitForFixedUpdate();
         }
+
+        yield break;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
