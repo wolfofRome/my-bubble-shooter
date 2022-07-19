@@ -37,23 +37,35 @@ public class BallCatapult : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (GetPullBackDistanse() <= _nonShootPullBackDistance)
+        float pullBackDistance = GetPullBackDistance();
+
+        if (pullBackDistance <= _nonShootPullBackDistance)
         {
             _currentBall.RbBall.MovePosition(CatapultRb.position);
             return;
         }
 
-        Vector2 flyDirection = (GetMousePosition() - CatapultRb.position).normalized * -1;
-        _currentBall.BallFlying(flyDirection);
+        Vector2 direction = (GetMousePosition() - CatapultRb.position).normalized * -1;
+        _currentBall.BallFlying(direction, pullBackDistance);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            _currentBall.RbBall.MovePosition(CatapultRb.position);
+            _currentBall._isBallCollide = false;
+            _currentBall.StopAllCoroutines();
+        }
+            
     }
 
     private void PullBackBall()
     {
-
-        
         Vector2 mousePosition = GetMousePosition();
+        float currentPullBackDistance = GetPullBackDistance();
 
-        if (GetPullBackDistanse() > _maxPullBackDistance)
+        if (currentPullBackDistance >= _maxPullBackDistance)
         {
             _currentBall.RbBall.MovePosition(CatapultRb.position + (mousePosition - CatapultRb.position).normalized * _maxPullBackDistance);
 
@@ -61,8 +73,11 @@ public class BallCatapult : MonoBehaviour
         else
         {
             _currentBall.RbBall.MovePosition(mousePosition);
-        }
             
+        }
+
+        Debug.Log(Mathf.Round(currentPullBackDistance / _maxPullBackDistance * 100));
+
     }
 
     private void ShootBall()
@@ -70,9 +85,14 @@ public class BallCatapult : MonoBehaviour
         
     }
 
-    private float GetPullBackDistanse()
+    private float GetPullBackDistance()
     {
-        return  Vector2.Distance(GetMousePosition(), CatapultRb.position);
+        float distance = Vector2.Distance(GetMousePosition(), CatapultRb.position);
+
+        if (distance > _maxPullBackDistance)
+            distance = _maxPullBackDistance;
+
+        return distance;
     }
 
     private Vector2 GetMousePosition()

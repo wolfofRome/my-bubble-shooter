@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Ball : MonoBehaviour
 {
-    private bool _isBallCollide = false;
+    public bool _isBallCollide = false;
     private Vector2 _ballOffset;
 
     private Rigidbody2D _rbBall;
@@ -28,23 +28,28 @@ public class Ball : MonoBehaviour
         _ballOffset = new Vector2(gameObject.transform.localScale.x/2, gameObject.transform.localScale.y);
     }
 
-    public Coroutine BallFlying(Vector2 flyDirection)
+    public Coroutine BallFlying(Vector2 flyDirection, float pullBackDistance)
     {
-        return StartCoroutine(BallFlyingCoroutine(flyDirection));
+        return StartCoroutine(BallFlyingCoroutine(flyDirection, pullBackDistance));
     }
 
-    public IEnumerator BallFlyingCoroutine(Vector2 flyDirection)
+    public IEnumerator BallFlyingCoroutine(Vector2 direction, float pullBackDistance)
     {
+        float time = 0;
+        Vector2 force;
         while (!_isBallCollide)
         {
-            if (_cameraMain.WorldToViewportPoint(RbBall.position + _ballOffset).x >= _cameraMain.rect.max.x || 
-                _cameraMain.WorldToViewportPoint(RbBall.position - _ballOffset).x <= _cameraMain.rect.min.x)
+            if (_cameraMain.WorldToViewportPoint(RbBall.position + _ballOffset).x >= _cameraMain.rect.max.x ||
+                _cameraMain.WorldToViewportPoint(RbBall.position - _ballOffset).x <= _cameraMain.rect.min.x )
             {
-                flyDirection.x *= -1;
+                direction *= -1;
             }
-                
-            RbBall.position += flyDirection * 0.5f;
+
+            force = direction * pullBackDistance;
+            RbBall.MovePosition(RbBall.position + force + Mathf.Pow(time, 2) * Physics2D.gravity / 2);
+
             yield return new WaitForFixedUpdate();
+            time += Time.fixedDeltaTime;
         }
 
         yield break;
@@ -54,8 +59,8 @@ public class Ball : MonoBehaviour
     {
         if(collision.GetComponent<Ball>() != null)
         {
-            _isBallCollide = true;
-            Debug.Log(gameObject.name);
+            if(_isBallCollide != true)
+                _isBallCollide = true;
         }
         
     }
