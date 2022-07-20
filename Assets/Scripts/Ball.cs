@@ -6,12 +6,19 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     private bool _isBallCollide = false;
-    private Vector2 _ballOffset;
+    private Vector2 _ballPositionOffset;
     private Camera _cameraMain;
 
     public bool IsBallCollide
     {
-        set; get;
+        set { _isBallCollide = value; }
+        get { return _isBallCollide; }
+    }
+
+    public Vector2 BallPositionOffset
+    {
+        set { _ballPositionOffset = value; }
+        get { return _ballPositionOffset; }
     }
 
     #region Cache Components
@@ -30,27 +37,30 @@ public class Ball : MonoBehaviour
     private void Start()
     {
         _cameraMain = Camera.main;
-        _ballOffset = new Vector2(gameObject.transform.localScale.x/2, gameObject.transform.localScale.y);
+        _ballPositionOffset = new Vector2(gameObject.transform.localScale.x/2, gameObject.transform.localScale.y);
     }
 
-    public Coroutine BallFlying(Vector2 flyDirection, float pullBackDistance)
+    public Coroutine BallFlying(Vector2 force)
     {
-        return StartCoroutine(BallFlyingCoroutine(flyDirection, pullBackDistance));
+        return StartCoroutine(BallFlyingCoroutine(force));
     }
 
-    public IEnumerator BallFlyingCoroutine(Vector2 direction, float pullBackDistance)
+    public IEnumerator BallFlyingCoroutine(Vector2 force)
     {
         float time = 0;
-        Vector2 force;
         while (!_isBallCollide)
         {
-            if (_cameraMain.WorldToViewportPoint(RbBall.position + _ballOffset).x >= _cameraMain.rect.max.x ||
-                _cameraMain.WorldToViewportPoint(RbBall.position - _ballOffset).x <= _cameraMain.rect.min.x )
+            if (_cameraMain.WorldToViewportPoint(RbBall.position + _ballPositionOffset).x >= _cameraMain.rect.max.x ||
+                _cameraMain.WorldToViewportPoint(RbBall.position - _ballPositionOffset).x <= _cameraMain.rect.min.x )
             {
-                direction.x *= -1;
+                force.x *= -1;
             }
 
-            force = direction * pullBackDistance;
+            if(_cameraMain.WorldToViewportPoint(RbBall.position + _ballPositionOffset).y >= _cameraMain.rect.max.y)
+            {
+                force.y *= -1;
+            }
+
             RbBall.position += force + Mathf.Pow(time, 2) * Physics2D.gravity / 2;
 
             yield return new WaitForFixedUpdate();

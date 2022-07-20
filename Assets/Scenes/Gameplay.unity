@@ -155,7 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &42207564
 Rigidbody2D:
   serializedVersion: 4
@@ -380,7 +379,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!58 &104521880
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -429,7 +427,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &236939314
 Rigidbody2D:
   serializedVersion: 4
@@ -566,7 +563,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &481928833
 Rigidbody2D:
   serializedVersion: 4
@@ -703,7 +699,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &661201828
 Rigidbody2D:
   serializedVersion: 4
@@ -840,7 +835,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &850919363
 Rigidbody2D:
   serializedVersion: 4
@@ -955,6 +949,7 @@ GameObject:
   m_Component:
   - component: {fileID: 855362070}
   - component: {fileID: 855362071}
+  - component: {fileID: 855362072}
   m_Layer: 0
   m_Name: Trajectory
   m_TagString: Untagged
@@ -1021,7 +1016,7 @@ LineRenderer:
   m_Positions:
   - {x: 1, y: 1, z: 0}
   - {x: 2, y: 2, z: 0}
-  - {x: 3, y: 3, z: 0}
+  - {x: 5, y: 5, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -1077,6 +1072,19 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
+--- !u!114 &855362072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855362069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b91057deea6fb34cb51e854b40ef1ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trajectoryPointsCount: 30
 --- !u!1 &1241389282
 GameObject:
   m_ObjectHideFlags: 0
@@ -1127,6 +1135,7 @@ MonoBehaviour:
   _currentBall: {fileID: 104521879}
   _maxPullBackDistance: 2
   _nonShootPullBackDistance: 0
+  _mainTrajectory: {fileID: 855362072}
 --- !u!61 &1241389285
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1258,7 +1267,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &1551953886
 Rigidbody2D:
   serializedVersion: 4
@@ -1395,7 +1403,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &1637247846
 Rigidbody2D:
   serializedVersion: 4
@@ -1616,7 +1623,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &1762792242
 Rigidbody2D:
   serializedVersion: 4
@@ -1753,7 +1759,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &1779988737
 Rigidbody2D:
   serializedVersion: 4
@@ -1890,7 +1895,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &1914961836
 Rigidbody2D:
   serializedVersion: 4
@@ -2027,7 +2031,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isBallCollide: 0
 --- !u!50 &2059048690
 Rigidbody2D:
   serializedVersion: 4

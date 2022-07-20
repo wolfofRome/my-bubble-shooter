@@ -12,6 +12,8 @@ public class BallCatapult : MonoBehaviour
     [SerializeField] private float _maxPullBackDistance = 2f;
     [SerializeField] private float _nonShootPullBackDistance = 0.5f;
 
+    [SerializeField] private Trajectory _mainTrajectory;
+
     private Camera _cameraMain;
 
     #region Cache Components
@@ -35,20 +37,18 @@ public class BallCatapult : MonoBehaviour
     private void OnMouseDrag()
     {
         PullBackBall();
+        _mainTrajectory.ShowTrajectory(_currentBall, CalculateForceForBall());
     }
 
     private void OnMouseUp()
     {
-        float pullBackDistance = GetPullBackDistance();
-
-        if (pullBackDistance <= _nonShootPullBackDistance)
+        if (GetPullBackDistance() <= _nonShootPullBackDistance)
         {
             _currentBall.RbBall.MovePosition(CatapultRb.position);
             return;
         }
 
-        Vector2 direction = (GetMousePosition() - CatapultRb.position).normalized * -1;
-        _currentBall.BallFlying(direction, pullBackDistance);
+        _currentBall.BallFlying(CalculateForceForBall());
     }
 
     private void Update()
@@ -93,5 +93,10 @@ public class BallCatapult : MonoBehaviour
     private Vector2 GetMousePosition()
     {
         return _cameraMain.ScreenToWorldPoint(Input.mousePosition);
+    }
+
+    private Vector2 CalculateForceForBall()
+    {
+        return ((GetMousePosition() - CatapultRb.position).normalized * -1) * GetPullBackDistance();
     }
 }
