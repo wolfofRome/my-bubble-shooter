@@ -14,6 +14,7 @@ public class BallCatapult : MonoBehaviour
 
     private Camera _cameraMain;
 
+    #region Cache Components
     private Rigidbody2D _catapultRb;
     public Rigidbody2D CatapultRb
     {
@@ -24,6 +25,7 @@ public class BallCatapult : MonoBehaviour
             return _catapultRb;
         }
     }
+    #endregion
 
     private void Start()
     {
@@ -54,7 +56,7 @@ public class BallCatapult : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             _currentBall.RbBall.MovePosition(CatapultRb.position);
-            _currentBall._isBallCollide = false;
+            _currentBall.IsBallCollide = false;
             _currentBall.StopAllCoroutines();
         }
             
@@ -73,16 +75,9 @@ public class BallCatapult : MonoBehaviour
         else
         {
             _currentBall.RbBall.MovePosition(mousePosition);
-            
         }
 
         Debug.Log(Mathf.Round(currentPullBackDistance / _maxPullBackDistance * 100));
-
-    }
-
-    private void ShootBall()
-    {
-        
     }
 
     private float GetPullBackDistance()

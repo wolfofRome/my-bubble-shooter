@@ -5,9 +5,16 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Ball : MonoBehaviour
 {
-    public bool _isBallCollide = false;
+    private bool _isBallCollide = false;
     private Vector2 _ballOffset;
+    private Camera _cameraMain;
 
+    public bool IsBallCollide
+    {
+        set; get;
+    }
+
+    #region Cache Components
     private Rigidbody2D _rbBall;
     public Rigidbody2D RbBall
     {
@@ -18,9 +25,7 @@ public class Ball : MonoBehaviour
             return _rbBall;
         }
     }
-
-    private Camera _cameraMain;
-
+    #endregion
 
     private void Start()
     {
@@ -42,11 +47,11 @@ public class Ball : MonoBehaviour
             if (_cameraMain.WorldToViewportPoint(RbBall.position + _ballOffset).x >= _cameraMain.rect.max.x ||
                 _cameraMain.WorldToViewportPoint(RbBall.position - _ballOffset).x <= _cameraMain.rect.min.x )
             {
-                direction *= -1;
+                direction.x *= -1;
             }
 
             force = direction * pullBackDistance;
-            RbBall.MovePosition(RbBall.position + force + Mathf.Pow(time, 2) * Physics2D.gravity / 2);
+            RbBall.position += force + Mathf.Pow(time, 2) * Physics2D.gravity / 2;
 
             yield return new WaitForFixedUpdate();
             time += Time.fixedDeltaTime;
@@ -61,7 +66,6 @@ public class Ball : MonoBehaviour
         {
             if(_isBallCollide != true)
                 _isBallCollide = true;
-        }
-        
+        } 
     }
 }
