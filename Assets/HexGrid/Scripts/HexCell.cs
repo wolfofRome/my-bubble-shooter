@@ -10,6 +10,8 @@ namespace Van.HexGrid
         [SerializeField] private HexCoordinates _coordinates;
         [SerializeField] private HexCell[] _neighbors = new HexCell[6];
 
+        private Ball _ball;
+
         public HexCoordinates Coordinates
         {
             get
@@ -32,6 +34,11 @@ namespace Van.HexGrid
         {
             _neighbors[(int)hexDirection] = cell;
             cell._neighbors[(int)hexDirection.Opposite()] = this;
+        }
+
+        public void SetBall(Ball ball)
+        {
+            _ball = ball;
         }
     }
 }

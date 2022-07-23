@@ -23,6 +23,11 @@ namespace Van.HexGrid
         {
             get { return _cells; }
         }
+        
+        public int Width
+        {
+            get { return _width; }
+        }
 
 
         private void Awake()
