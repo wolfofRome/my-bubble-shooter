@@ -1,35 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-
 
 namespace Van.HexGrid
 {
     public class HexGrid : MonoBehaviour
     {
+        [Header("General")]
         [SerializeField] private int _width;
         [SerializeField] private int _height;
         [SerializeField] private HexCell _cellPrefab;
-        [SerializeField] private Text _cellLabelPrefab;
-
+        
         [Header("Debug")]
         [SerializeField] private bool _debugMode = true;
+        [SerializeField] private Text _cellLabelPrefab;
 
         private HexCell[] _cells;
         private Canvas _gridCanvas;
+
+        public int Width
+        {
+            get { return _width; }
+        }
+        public int Height
+        {
+            get { return _height; }
+        }
 
         public HexCell[] Cells
         {
             get { return _cells; }
         }
         
-        public int Width
-        {
-            get { return _width; }
-        }
-
-
+        
         private void Awake()
         {
             _gridCanvas = GetComponentInChildren<Canvas>();
@@ -45,6 +50,13 @@ namespace Van.HexGrid
                     number++;
                 }
             }
+        }
+
+        public HexCell GetCellFromPosition(Vector2 position)
+        {
+            position = transform.InverseTransformPoint(position.x, position.y, 0);
+            HexCoordinates cellCoordinates = HexCoordinates.FromPosition(position);
+            return _cells.FirstOrDefault(c => c.Coordinates.X == cellCoordinates.X && c.Coordinates.Y == cellCoordinates.Y);
         }
 
         private void CreateCell(int x, int y, int number)
