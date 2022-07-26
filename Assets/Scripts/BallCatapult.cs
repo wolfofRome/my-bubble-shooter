@@ -57,6 +57,8 @@ public class BallCatapult : MonoBehaviour
             _currentBall.RbBall.MovePosition(CatapultRb.position);
             _currentBall.IsBallCollide = false;
             _currentBall.StopAllCoroutines();
+            _currentBall.RbBall.constraints = RigidbodyConstraints2D.None;
+            _currentBall.RbBall.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
             
     }
@@ -76,7 +78,8 @@ public class BallCatapult : MonoBehaviour
             _currentBall.RbBall.MovePosition(mousePosition);
         }
 
-        Debug.Log(Mathf.Round(currentPullBackDistance / _maxPullBackDistance * 100));
+        //Debug.Log(CalculateForceForBall());
+        //Debug.Log(Mathf.Round(currentPullBackDistance / _maxPullBackDistance * 100));
     }
 
     private float GetPullBackDistance()

@@ -1,24 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Van.HexGrid;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(CircleCollider2D))]
 public class Ball : MonoBehaviour
 {
+    public HexGrid grid;
+    public GameObject test;
+
     private bool _isBallCollide = false;
-    private Vector2 _ballPositionOffset;
-    private Camera _cameraMain;
+    private Collision2D _wallCollision;
 
     public bool IsBallCollide
     {
         set { _isBallCollide = value; }
         get { return _isBallCollide; }
-    }
-
-    public Vector2 BallPositionOffset
-    {
-        set { _ballPositionOffset = value; }
-        get { return _ballPositionOffset; }
     }
 
     #region Cache Components
@@ -32,13 +30,18 @@ public class Ball : MonoBehaviour
             return _rbBall;
         }
     }
-    #endregion
 
-    private void Start()
+    private CircleCollider2D _circleCollider;
+    public CircleCollider2D CircleCollider
     {
-        _cameraMain = Camera.main;
-        _ballPositionOffset = new Vector2(gameObject.transform.localScale.x/2, gameObject.transform.localScale.y);
+        get
+        {
+            if (_circleCollider == null)
+                _circleCollider = GetComponent<CircleCollider2D>();
+            return _circleCollider;
+        }
     }
+    #endregion
 
     public Coroutine BallFlying(Vector2 force)
     {
@@ -50,18 +53,13 @@ public class Ball : MonoBehaviour
         float time = 0;
         while (!_isBallCollide)
         {
-            if (_cameraMain.WorldToViewportPoint(RbBall.position + _ballPositionOffset).x >= _cameraMain.rect.max.x ||
-                _cameraMain.WorldToViewportPoint(RbBall.position - _ballPositionOffset).x <= _cameraMain.rect.min.x )
+            if (_wallCollision != null)
             {
-                force.x *= -1;
+                force = Vector2.Reflect(force, _wallCollision.contacts[0].normal);
+                _wallCollision = null;
             }
 
-            if(_cameraMain.WorldToViewportPoint(RbBall.position + _ballPositionOffset).y >= _cameraMain.rect.max.y)
-            {
-                force.y *= -1;
-            }
-
-            RbBall.position += force + Mathf.Pow(time, 2) * Physics2D.gravity / 2;
+            RbBall.MovePosition(RbBall.position + force + Mathf.Pow(time, 2) * Physics2D.gravity / 2);
 
             yield return new WaitForFixedUpdate();
             time += Time.fixedDeltaTime;
@@ -70,12 +68,19 @@ public class Ball : MonoBehaviour
         yield break;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.GetComponent<Ball>() != null)
+        if (collision.rigidbody.GetComponent<Ball>() != null)
         {
-            if(_isBallCollide != true)
+            if (_isBallCollide != true)
                 _isBallCollide = true;
-        } 
+
+            RbBall.constraints = RigidbodyConstraints2D.FreezeAll;
+            HexCell cell = grid.GetCellFromPosition(RbBall.position);
+            RbBall.position = cell.transform.position;
+            return;
+        }
+
+        _wallCollision = collision;
     }
 }
