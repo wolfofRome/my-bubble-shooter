@@ -8,7 +8,6 @@ public struct BallPrefabType
     [SerializeField] private string _id;
     [SerializeField] private Ball _prefab;
 
-
     public string Id
     {
         get { return _id; }

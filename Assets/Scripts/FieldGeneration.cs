@@ -9,9 +9,11 @@ using System.Linq;
 public class FieldGeneration : MonoBehaviour
 {
     [SerializeField] private HexGrid _fieldGrid;
-    [SerializeField] private Ball _ballPrefab;
+
+    [Header("Prefabs")]
     [SerializeField] private List<BallPrefabType> _ballPrefabs;
 
+    [Header("Level")]
     [SerializeField] private string _levelAssetsPath;
     [SerializeField] private TextAsset _level;
 
@@ -48,7 +50,6 @@ public class FieldGeneration : MonoBehaviour
             }
 
             HexCell cell = _fieldGrid.Cells[fromIndex + cellIndex];
-            Debug.Log(cell.Coordinates);
 
             Ball ball = Instantiate(_ballPrefab.Prefab, cell.transform.position, Quaternion.identity);
             ball.transform.SetParent(gameObject.transform);
