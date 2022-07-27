@@ -25,6 +25,11 @@ namespace Van.HexGrid
             }
         }
 
+        public HexCell[] Neighbors
+        {
+            get { return _neighbors; }
+        }
+
         public HexCell GetNeighbor(HexDirection hexDirection)
         {
             return _neighbors[(int)hexDirection];
@@ -39,6 +44,12 @@ namespace Van.HexGrid
         public void SetBall(Ball ball)
         {
             _ball = ball;
+            _ball.RbBall.position = gameObject.transform.position;
+        }
+
+        public Ball GetBall()
+        {
+            return _ball;
         }
     }
 }

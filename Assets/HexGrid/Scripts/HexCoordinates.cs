@@ -45,7 +45,6 @@ namespace Van.HexGrid
 
             if(rX + rY + rZ != 0)
             {
-                Debug.Log("F");
                 float dX = Mathf.Abs(x - rX);
                 float dZ = Mathf.Abs(z - rZ);
                 float dY = Mathf.Abs(-x - z - rY);

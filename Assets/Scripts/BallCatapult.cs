@@ -47,7 +47,7 @@ public class BallCatapult : MonoBehaviour
             return;
         }
 
-        _currentBall.BallFlying(CalculateForceForBall());
+        _currentBall.MoveBall(CalculateForceForBall());
     }
 
     private void Update()
