@@ -7,11 +7,12 @@ using Van.HexGrid;
 [RequireComponent(typeof(CircleCollider2D))]
 public class Ball : MonoBehaviour
 {
-    public HexGrid grid;
-    public GameObject test;
+    [SerializeField] private bool _isActiveBall;
 
     private bool _isBallCollide = false;
     private Collision2D _wallCollision;
+    
+    public string _typeId;
 
     public bool IsBallCollide
     {
@@ -43,12 +44,12 @@ public class Ball : MonoBehaviour
     }
     #endregion
 
-    public Coroutine BallFlying(Vector2 force)
+    public Coroutine MoveBall(Vector2 force)
     {
-        return StartCoroutine(BallFlyingCoroutine(force));
+        return StartCoroutine(MoveBallCoroutine(force));
     }
 
-    public IEnumerator BallFlyingCoroutine(Vector2 force)
+    public IEnumerator MoveBallCoroutine(Vector2 force)
     {
         float time = 0;
         while (!_isBallCollide)
@@ -70,14 +71,12 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.rigidbody.GetComponent<Ball>() != null)
+        if (collision.rigidbody.GetComponent<Ball>() != null && _isActiveBall)
         {
             if (_isBallCollide != true)
                 _isBallCollide = true;
-
-            RbBall.constraints = RigidbodyConstraints2D.FreezeAll;
-            HexCell cell = grid.GetCellFromPosition(RbBall.position);
-            RbBall.position = cell.transform.position;
+ 
+            GameplayEvents.OnBallCollided.Invoke(this);
             return;
         }
 
