@@ -8,10 +8,14 @@ using System.Linq;
 
 public class LevelField : MonoBehaviour
 {
+    [Header("General")]
     [SerializeField] private HexGrid _fieldGrid;
+    [SerializeField] private BallCatapult _ballCatapultObject;
+
     [Header("Prefabs")]
     [SerializeField] private List<BallPrefabType> _ballPrefabs;
     [SerializeField] private FixedJoint2D _fixedJointPrefab;
+
     [Header("Level")]
     [SerializeField] private string _levelAssetsPath;
     [SerializeField] private TextAsset _level;
@@ -59,6 +63,10 @@ public class LevelField : MonoBehaviour
             HexCell cell = _fieldGrid.Cells[fromIndex + cellIndex];
 
             Ball ball = Instantiate(_ballPrefab.Prefab, cell.transform.position, Quaternion.identity);
+
+            if (fromIndex == _fieldGrid.Cells.Length - _fieldGrid.Width)
+                ball.RbBall.bodyType = RigidbodyType2D.Static;
+
             _ballsOnField.Add(ball);
             ball._typeId = type;
             cell.SetBall(ball);
