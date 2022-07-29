@@ -107,7 +107,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!58 &4632960509643196599
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -136,3 +136,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _jointConnetctionPrefab: {fileID: 0}
+  _isActiveBall: 0

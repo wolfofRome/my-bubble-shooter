@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Button))]
 public class UILevel : MonoBehaviour
@@ -21,9 +20,21 @@ public class UILevel : MonoBehaviour
     }
     #endregion
 
-    public void Awake()
+    private void Awake()
     {
-        
+        UILevelButton.onClick.AddListener(LevelStart);
+    }
+
+    private void OnDestroy()
+    {
+        UILevelButton.onClick.RemoveListener(LevelStart);
+    }
+
+    private void LevelStart()
+    {
+        UIEvents.OnClickLevelStart.Invoke();
+        LevelDataHolder.LevelData = _levelData;
+        SceneManager.LoadSceneAsync((int)GameScenes.GameplayScene);
     }
 
 }

@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class UIEvents
 {
-    private static UnityEvent _onButtonPlayPressed = new UnityEvent();
+    private static UnityEvent _onClickLevelStart = new UnityEvent();
 
-    public static UnityEvent OnButtonPlayPressed { get => _onButtonPlayPressed; }
+    public static UnityEvent OnClickLevelStart { get => _onClickLevelStart; }
 }

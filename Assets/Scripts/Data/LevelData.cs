@@ -12,12 +12,12 @@ public class LevelData : ScriptableObject
 
     [Header("Level Settings")]
     [SerializeField] private string _levelName;
+    [SerializeField] private int _countAvailableBalls;
     [SerializeField] private List<BallPrefabType> _ballsTypeInLevel;
-
 
     public string PathToLevelFile { get => _pathToLevelFile; }
     public TextAsset LevelFile { get => _levelFile; }
     public string LevelName { get => _levelName; }
+    public int CountAvailableBalls { get => _countAvailableBalls; }
     public List<BallPrefabType> BallsTypeInLevel { get => _ballsTypeInLevel; }
-
 }

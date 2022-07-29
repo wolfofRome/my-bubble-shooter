@@ -44,7 +44,13 @@ namespace Van.HexGrid
         public void SetBall(Ball ball)
         {
             _ball = ball;
-            _ball.RbBall.position = gameObject.transform.position;
+            _ball.RbBall.position = transform.position;
+            _ball.RbBall.gravityScale = 1f;
+        }
+
+        public void RemoveBall()
+        {
+            _ball = null;
         }
 
         public Ball GetBall()
