@@ -12,7 +12,7 @@ public class LevelField : MonoBehaviour
 
     private string _levelAssetsPath;
     private TextAsset _level;
-    private readonly List<BallPrefabType> _ballPrefabs = new List<BallPrefabType>();
+    private readonly List<BallTypePrefab> _ballPrefabs = new List<BallTypePrefab>();
     private readonly List<Ball> _ballsOnField = new List<Ball>();
 
     private void Awake()
@@ -29,19 +29,6 @@ public class LevelField : MonoBehaviour
     {
         GenerateGameField();
         GameplayEvents.OnGameFieldGenerated.Invoke();
-
-        foreach(Ball ball in _ballsOnField)
-        {
-            HexCell cell = _fieldGrid.GetCellFromPosition(ball.RbBall.position);
-            
-            foreach(HexCell neighborCell in cell.Neighbors)
-            {
-                if(neighborCell != null && neighborCell.GetBall() != null)
-                {
-                    neighborCell.GetBall().AddJointConnection(ball);
-                }
-            }            
-        }
     }
 
     private void OnDestroy()
@@ -72,7 +59,7 @@ public class LevelField : MonoBehaviour
                 fromIndex -= _fieldGrid.Width;
             }
 
-            BallPrefabType _ballPrefab = _ballPrefabs.FirstOrDefault(t => t.Id == type);
+            BallTypePrefab _ballPrefab = _ballPrefabs.FirstOrDefault(t => t.Id == type);
 
             if (_ballPrefab.Prefab == null)
             {
@@ -81,22 +68,25 @@ public class LevelField : MonoBehaviour
             }
 
             HexCell cell = _fieldGrid.Cells[fromIndex + cellIndex];
-            Ball ball = Instantiate(_ballPrefab.Prefab, cell.transform.position, Quaternion.identity);
+            Ball ball = Instantiate(_ballPrefab.Prefab, transform);
 
             if (fromIndex == _fieldGrid.Cells.Length - _fieldGrid.Width)
                 ball.RbBall.bodyType = RigidbodyType2D.Static;
 
-            _ballsOnField.Add(ball);
             ball.TypeId = type;
-            cell.SetBall(ball);
-            ball.transform.SetParent(gameObject.transform);
+            SetBallAtField(ball, cell);
+
             cellIndex++;
         }
     }
 
-    private void SetActiveBallAtField(Ball activeBall)
+    private void SetBallAtField(Ball ball, HexCell cell)
     {
-        HexCell cell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position);
+        if(ball == null)
+        {
+            Debug.LogWarning("Attached ball is null!");
+            return;
+        }
 
         if(cell == null)
         {
@@ -104,25 +94,30 @@ public class LevelField : MonoBehaviour
             return;
         }
 
-        cell.SetBall(activeBall);
-        activeBall.RbBall.constraints = RigidbodyConstraints2D.FreezePosition;
-        activeBall.transform.SetParent(transform);
-        
-        foreach(HexCell neighborCell in cell.Neighbors)
-        {
-            if (neighborCell == null || neighborCell.GetBall() == null)
-                continue;
-            
-            activeBall.AddJointConnection(neighborCell.GetBall());
-            neighborCell.GetBall().AddJointConnection(activeBall);
-        }
+        ball.transform.SetParent(gameObject.transform);
+        cell.SetBall(ball);
+        _ballsOnField.Add(ball);
 
-        activeBall.RbBall.constraints = RigidbodyConstraints2D.None;
-        activeBall.RbBall.constraints = RigidbodyConstraints2D.FreezeRotation;
+        ball.transform.position = cell.transform.position;
+        ball.AddJointConnection(cell.transform.position);
 
-        _ballsOnField.Add(activeBall);
+        ball.RbBall.gravityScale = 1f;
+        ball.RbBall.mass = 1f;
+    }
+
+    private void SetActiveBallAtField(Ball activeBall)
+    {
+        HexCell cell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position);
+        SetBallAtField(activeBall, cell);
 
         GameplayEvents.OnActiveBallSetOnField.Invoke(activeBall);
+    }
+
+    private void RemoveBallFromField(HexCell cell)
+    {
+        _ballsOnField.Remove(cell.GetBall());
+        Destroy(cell.GetBall().gameObject);
+        cell.RemoveBall();
     }
 
     private List<HexCell> GetBallGroupCells(Ball ball)
@@ -167,24 +162,10 @@ public class LevelField : MonoBehaviour
         if (ballGroupCells.Count < 3)
             return;
 
-        foreach (HexCell c in ballGroupCells)
+        foreach (HexCell cell in ballGroupCells)
         {
-            _ballsOnField.Remove(c.GetBall());
-            Destroy(c.GetBall().gameObject);
-            c.RemoveBall();
+            RemoveBallFromField(cell);
         }
-
-        var t = _fieldGrid.Cells.Reverse().ToArray();
-
-        int lastLineBallCount = 0;
-        for(int i = 0; i < 10; i++)
-        {
-            if (t[i].GetBall() != null)
-                lastLineBallCount++;
-                
-        }
-
-        Debug.Log(lastLineBallCount);
 
         GameplayEvents.OnBallGroupDestroyed.Invoke(_ballsOnField);
     }

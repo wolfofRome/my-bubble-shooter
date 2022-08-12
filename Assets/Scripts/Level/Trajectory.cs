@@ -6,19 +6,35 @@ using UnityEngine;
 public class Trajectory : MonoBehaviour
 {
     [SerializeField] private int _trajectoryPointsCount;
-    private LineRenderer _lineRenderer;
-    private CameraSettings _cameraSetting;
 
-    void Start()
+    #region Cache components
+    private CameraSettings _cameraSettings;
+    public CameraSettings CameraSettings
     {
-        _lineRenderer = GetComponent<LineRenderer>();
-        _cameraSetting = Camera.main.GetComponent<CameraSettings>();
+        get
+        {
+            if (_cameraSettings == null)
+                _cameraSettings = Camera.main.GetComponent<CameraSettings>();
+            return _cameraSettings;
+        }
     }
+
+    private LineRenderer _lineRenderer;
+    public LineRenderer LineRenderer
+    {
+        get
+        {
+            if (_lineRenderer == null)
+                _lineRenderer = GetComponent<LineRenderer>();
+            return _lineRenderer;
+        }
+    }
+    #endregion
 
     public void ShowTrajectory(Ball ball, Vector2 force)
     {
         Vector3[] points = new Vector3[_trajectoryPointsCount];
-        _lineRenderer.positionCount = _trajectoryPointsCount;
+        LineRenderer.positionCount = _trajectoryPointsCount;
 
         float time = 0;
 
@@ -27,24 +43,24 @@ public class Trajectory : MonoBehaviour
         {
             Vector2 point = (Vector2)points[i - 1] + force + Mathf.Pow(time, 2) * Physics2D.gravity / 2;
 
-            if(point.x >= _cameraSetting.WorldViewportMax.x)
+            if(point.x >= CameraSettings.WorldViewportMax.x)
             {
-                Vector2 minLinePoint = new Vector2(_cameraSetting.WorldViewportMax.x, _cameraSetting.WorldViewportMax.y * -1);
-                point = Intersection(points[i - 1], point, minLinePoint, _cameraSetting.WorldViewportMax);
+                Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMax.x, CameraSettings.WorldViewportMax.y * -1);
+                point = Intersection(points[i - 1], point, minLinePoint, CameraSettings.WorldViewportMax);
                 force = Vector2.Reflect(force, Vector2.left);
             }
 
-            if(point.x <= _cameraSetting.WorldViewportMin.x)
+            if(point.x <= CameraSettings.WorldViewportMin.x)
             {
-                Vector2 minLinePoint = new Vector2(_cameraSetting.WorldViewportMin.x, _cameraSetting.WorldViewportMin.y * -1);
-                point = Intersection(points[i - 1], point, minLinePoint, _cameraSetting.WorldViewportMin);
+                Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMin.x, CameraSettings.WorldViewportMin.y * -1);
+                point = Intersection(points[i - 1], point, minLinePoint, CameraSettings.WorldViewportMin);
                 force = Vector2.Reflect(force, Vector2.right);
             }
 
-            if(point.y >= _cameraSetting.WorldViewportMax.y)
+            if (point.y >= CameraSettings.WorldViewportMax.y)
             {
-                Vector2 minLinePoint = new Vector2(_cameraSetting.WorldViewportMax.x * -1, _cameraSetting.WorldViewportMax.y );
-                point = Intersection(points[i - 1], point, minLinePoint, _cameraSetting.WorldViewportMax);
+                Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMax.x * -1, CameraSettings.WorldViewportMax.y );
+                point = Intersection(points[i - 1], point, minLinePoint, CameraSettings.WorldViewportMax);
                 force = Vector2.Reflect(force, Vector2.down);
             }
 
@@ -52,7 +68,7 @@ public class Trajectory : MonoBehaviour
             time += Time.fixedDeltaTime;
         }
 
-        _lineRenderer.SetPositions(points);
+        LineRenderer.SetPositions(points);
     }
 
     private Vector2 Intersection(Vector2 linePointMin1, Vector2 linePointMax1, Vector2 linePointMin2, Vector2 linePointMax2)

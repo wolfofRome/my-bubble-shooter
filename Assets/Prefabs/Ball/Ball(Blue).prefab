@@ -99,7 +99,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 10
+  m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 0
@@ -136,5 +136,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaccebd3c3f13d43a4394f991d27f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _jointConnetctionPrefab: {fileID: 3215654366964195476, guid: 686fd876d1691d143a91ec0789573eb2, type: 3}
+  _jointConnetctionPrefab: {fileID: 2605650647136662640, guid: c0dc3af6c3f418547a3a22da1a9826a1, type: 3}
   _isActiveBall: 0

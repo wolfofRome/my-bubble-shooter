@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public struct BallPrefabType
+public struct BallTypePrefab
 {
     [SerializeField] private string _id;
     [SerializeField] private Ball _prefab;

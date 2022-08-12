@@ -9,16 +9,13 @@ public class BallCatapult : MonoBehaviour
 { 
     [SerializeField] private float _maxPullBackDistance = 2f;
     [SerializeField] private float _nonShootPullBackDistance = 0.5f;
-
     [SerializeField] private Transform _nextBallPosition;
     [SerializeField] private Trajectory _mainTrajectory;
 
     private int _countAvailableBalls = 1;
-    private Ball _nextBall;
+    private Queue<Ball> _availableBalls = new Queue<Ball>();
     private Ball _activeBall;
-
-    private Camera _cameraMain;
-    private List<BallPrefabType> _activeBallPrefabs;
+    private List<BallTypePrefab> _activeBallPrefabs;
 
     public int CountAvailableBalls
     {
@@ -29,7 +26,6 @@ public class BallCatapult : MonoBehaviour
 
             _countAvailableBalls = value;
             GameplayEvents.OnCountAvailableBallsChanged.Invoke(_countAvailableBalls);
-            
         }
 
         get
@@ -49,12 +45,21 @@ public class BallCatapult : MonoBehaviour
             return _catapultRb;
         }
     }
+
+    private CameraSettings _cameraSettings;
+    private CameraSettings CameraSettings
+    {
+        get
+        {
+            if (_cameraSettings == null)
+                _cameraSettings = Camera.main.GetComponent<CameraSettings>();
+            return _cameraSettings;
+        }
+    }
     #endregion
 
     private void Awake()
     {
-        _cameraMain = Camera.main;
-
         _activeBallPrefabs = LevelDataHolder.LevelData.BallsTypeInLevel;
         _countAvailableBalls = LevelDataHolder.LevelData.CountAvailableBalls;
 
@@ -63,10 +68,18 @@ public class BallCatapult : MonoBehaviour
 
     private void Start()
     {
-        SetNextBall();
-        _activeBall = _nextBall;
-        _activeBall.IsActiveBall = true;
-        _activeBall.transform.position = transform.position;
+        for(int i = 0; i<100; i++)
+        {
+            BallTypePrefab ballTypePrefab = GetRandomBallType();
+            Ball ball = Instantiate(ballTypePrefab.Prefab, _nextBallPosition.position, Quaternion.identity, _nextBallPosition);
+            ball.TypeId = ballTypePrefab.Id;
+            ball.RbBall.mass = 0f;
+            ball.gameObject.SetActive(false);
+
+            _availableBalls.Enqueue(ball);
+        }
+
+        SetActiveBall();
         SetNextBall();
     }
 
@@ -80,7 +93,7 @@ public class BallCatapult : MonoBehaviour
     {
         if (GetPullBackDistance() <= _nonShootPullBackDistance)
         {
-            SetBallAtCatapultPosition(_activeBall);
+            MoveBallAtCatapultPosition(_activeBall);
             return;
         }
 
@@ -111,23 +124,7 @@ public class BallCatapult : MonoBehaviour
         //Debug.Log(Mathf.Round(currentPullBackDistance / _maxPullBackDistance * 100));
     }
 
-    private void SetNextBall()
-    {
-        if(_countAvailableBalls == 0)
-        {
-            return;
-        }
-
-        BallPrefabType prefabType = GetRandomBallType();
-
-        Ball nextBall = Instantiate(prefabType.Prefab, _nextBallPosition.position, Quaternion.identity);
-        nextBall.TypeId = prefabType.Id;
-        nextBall.transform.SetParent(_nextBallPosition);
-        nextBall.RbBall.mass = 0.05f;
-        _nextBall = nextBall;
-    }
-
-    private void SetBallAtCatapultPosition(Ball ball)
+    private void MoveBallAtCatapultPosition(Ball ball)
     {
         ball.RbBall.position = transform.position;
     }
@@ -135,13 +132,32 @@ public class BallCatapult : MonoBehaviour
     private void ChangeActiveBall(Ball activeBall)
     {
         activeBall.IsActiveBall = false;
-        _activeBall = _nextBall;
-        _activeBall.IsActiveBall = true;
-        _activeBall.transform.position = transform.position;
 
+        SetActiveBall();
         CountAvailableBalls -= 1;
 
         SetNextBall();
+    }
+
+    private void SetActiveBall()
+    {
+        _activeBall = _availableBalls.Dequeue();
+        _activeBall.transform.SetParent(transform);
+
+        _activeBall.transform.position = transform.position;
+
+        _activeBall.IsActiveBall = true;
+        _activeBall.gameObject.SetActive(true);
+    }
+
+    private void SetNextBall()
+    {
+        if (_countAvailableBalls == 0)
+        {
+            return;
+        }
+
+        _availableBalls.Peek().gameObject.SetActive(true);
     }
 
     private float GetPullBackDistance()
@@ -156,7 +172,7 @@ public class BallCatapult : MonoBehaviour
 
     private Vector2 GetMousePosition()
     {
-        return _cameraMain.ScreenToWorldPoint(Input.mousePosition);
+        return CameraSettings.Camera.ScreenToWorldPoint(Input.mousePosition);
     }
 
     private Vector2 CalculateForceForBall()
@@ -164,7 +180,7 @@ public class BallCatapult : MonoBehaviour
         return ((GetMousePosition() - CatapultRb.position).normalized * -1) * GetPullBackDistance();
     }
 
-    private BallPrefabType GetRandomBallType()
+    private BallTypePrefab GetRandomBallType()
     {
         return _activeBallPrefabs[Random.Range(0, _activeBallPrefabs.Count)];
     }

@@ -9,8 +9,7 @@ namespace Van.HexGrid
     {
         [SerializeField] private HexCoordinates _coordinates;
         [SerializeField] private HexCell[] _neighbors = new HexCell[6];
-
-        private Ball _ball;
+        [SerializeField] private Ball _ball;
 
         public HexCoordinates Coordinates
         {
@@ -44,8 +43,6 @@ namespace Van.HexGrid
         public void SetBall(Ball ball)
         {
             _ball = ball;
-            _ball.RbBall.position = transform.position;
-            _ball.RbBall.gravityScale = 1f;
         }
 
         public void RemoveBall()
