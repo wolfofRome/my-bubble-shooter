@@ -64,6 +64,7 @@ public class BallCatapult : MonoBehaviour
         _countAvailableBalls = LevelDataHolder.LevelData.CountAvailableBalls;
 
         GameplayEvents.OnActiveBallSetOnField.AddListener(ChangeActiveBall);
+        GameplayEvents.OnActiveBallDestroyed.AddListener(ChangeActiveBall);
     }
 
     private void Start()
@@ -103,6 +104,7 @@ public class BallCatapult : MonoBehaviour
     private void OnDestroy()
     {
         GameplayEvents.OnActiveBallSetOnField.RemoveListener(ChangeActiveBall);
+        GameplayEvents.OnActiveBallDestroyed.RemoveListener(ChangeActiveBall);
     }
 
     private void PullBackBall()

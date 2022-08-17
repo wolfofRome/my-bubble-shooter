@@ -23,6 +23,7 @@ public class LevelField : MonoBehaviour
 
         GameplayEvents.OnActiveBallCollided.AddListener(SetActiveBallAtField);
         GameplayEvents.OnActiveBallSetOnField.AddListener(TryDestroyBallGroup);
+        GameplayEvents.OnBallGroupDestroyed.AddListener(FallBalls);
     }
 
     private void Start()
@@ -35,6 +36,7 @@ public class LevelField : MonoBehaviour
     {
         GameplayEvents.OnActiveBallSetOnField.RemoveListener(TryDestroyBallGroup);
         GameplayEvents.OnActiveBallCollided.RemoveListener(SetActiveBallAtField);
+        GameplayEvents.OnBallGroupDestroyed.RemoveListener(FallBalls);
     }
 
     private void GenerateGameField()
@@ -71,7 +73,11 @@ public class LevelField : MonoBehaviour
             Ball ball = Instantiate(_ballPrefab.Prefab, transform);
 
             if (fromIndex == _fieldGrid.Cells.Length - _fieldGrid.Width)
+            {
                 ball.RbBall.bodyType = RigidbodyType2D.Static;
+                ball.IsFirstLineBall = true;
+            }
+                
 
             ball.TypeId = type;
             SetBallAtField(ball, cell);
@@ -110,14 +116,25 @@ public class LevelField : MonoBehaviour
         HexCell cell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position);
         SetBallAtField(activeBall, cell);
 
+        if (cell.GetNeighbor(HexDirection.NW) == null && cell.GetNeighbor(HexDirection.NE) == null)
+        {
+            activeBall.RbBall.bodyType = RigidbodyType2D.Static;
+            activeBall.IsFirstLineBall = true;
+        }
+
         GameplayEvents.OnActiveBallSetOnField.Invoke(activeBall);
     }
 
     private void RemoveBallFromField(HexCell cell)
     {
         _ballsOnField.Remove(cell.GetBall());
-        Destroy(cell.GetBall().gameObject);
         cell.RemoveBall();
+    }
+
+    private void DropBallFromField(Ball dropBall)
+    {
+        dropBall.CircleCollider.isTrigger = true;
+        dropBall.JointConnection.enabled = false;
     }
 
     private List<HexCell> GetBallGroupCells(Ball ball)
@@ -164,9 +181,117 @@ public class LevelField : MonoBehaviour
 
         foreach (HexCell cell in ballGroupCells)
         {
+            Ball destroyedBall = cell.GetBall();
             RemoveBallFromField(cell);
+            destroyedBall.DestroyBall();
         }
 
         GameplayEvents.OnBallGroupDestroyed.Invoke(_ballsOnField);
     }
+
+    private void FallBalls(List<Ball> destroyedBalls)
+    {
+        List<HexCell> supposedBallCells = new List<HexCell>();
+        foreach (Ball ballOnField in _ballsOnField)
+        {
+            if (ballOnField.IsFirstLineBall)
+                continue;
+
+            HexCell cell = _fieldGrid.GetCellFromPosition(ballOnField.RbBall.position);
+
+            HexCell cellNeighborNW = cell.GetNeighbor(HexDirection.NW);
+            if (cellNeighborNW != null && cellNeighborNW.GetBall() != null)
+                continue;
+
+            HexCell cellNeighborNE = cell.GetNeighbor(HexDirection.NE);
+            if (cellNeighborNE != null && cellNeighborNE.GetBall() != null)
+                continue;
+
+            supposedBallCells.Add(cell);
+        }
+
+        for (int i = 0; i < supposedBallCells.Count; i++)
+        {
+            List<HexCell> checkedFallingBallsCells = new List<HexCell>();
+            checkedFallingBallsCells.Add(supposedBallCells[i]);
+
+            Queue<HexCell> checkedFallingBallsEdgeCells = new Queue<HexCell>();
+            checkedFallingBallsEdgeCells.Enqueue(supposedBallCells[i]);
+
+            while(checkedFallingBallsEdgeCells.Count > 0)
+            {
+                HexCell cell = checkedFallingBallsEdgeCells.Dequeue();
+
+                HexCell checkingCellW = cell.GetNeighbor(HexDirection.W);
+                if(checkingCellW != null && !checkedFallingBallsCells.Contains(checkingCellW))
+                {
+                    if (!supposedBallCells.Contains(checkingCellW))
+                    {
+                        HexCell checkingCellWNeighborNE = checkingCellW.GetNeighbor(HexDirection.NE);
+                        if (checkingCellWNeighborNE != null && checkingCellWNeighborNE.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellWNeighborNE))
+                        {
+                            checkedFallingBallsCells.Clear();
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        supposedBallCells.Remove(checkingCellW);
+                    }
+
+                    if (checkingCellW.GetBall() != null)
+                    {
+                        checkedFallingBallsEdgeCells.Enqueue(checkingCellW);
+                        checkedFallingBallsCells.Add(checkingCellW);
+                    }
+                }
+
+                HexCell checkingCellSW = cell.GetNeighbor(HexDirection.SW);
+                if (checkingCellSW != null && checkingCellSW.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellSW))
+                {
+                    checkedFallingBallsEdgeCells.Enqueue(checkingCellSW);
+                    checkedFallingBallsCells.Add(checkingCellSW);
+                }
+
+                HexCell checkingCellSE = cell.GetNeighbor(HexDirection.SE);
+                if (checkingCellSE != null && checkingCellSE.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellSE))
+                {
+                    checkedFallingBallsEdgeCells.Enqueue(checkingCellSE);
+                    checkedFallingBallsCells.Add(checkingCellSE);
+                }
+
+                HexCell checkingCellE = cell.GetNeighbor(HexDirection.E);
+                if(checkingCellE != null && !checkedFallingBallsCells.Contains(checkingCellE))
+                {
+                    if (!supposedBallCells.Contains(checkingCellE))
+                    {
+                        HexCell checkingCellENeighborNW = checkingCellE.GetNeighbor(HexDirection.NW);
+
+                        if (checkingCellENeighborNW != null && checkingCellENeighborNW.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellENeighborNW))
+                        {
+                            checkedFallingBallsCells.Clear();
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        supposedBallCells.Remove(checkingCellE);
+                    }
+
+                    if(checkingCellE.GetBall() != null)
+                    {
+                        checkedFallingBallsEdgeCells.Enqueue(checkingCellE);
+                        checkedFallingBallsCells.Add(checkingCellE);
+                    }
+                }
+            }
+
+            foreach(var b in checkedFallingBallsCells)
+            {
+                DropBallFromField(b.GetBall());
+                RemoveBallFromField(b);
+            }
+        }
+    }
+
 }
