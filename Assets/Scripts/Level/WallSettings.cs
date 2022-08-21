@@ -9,6 +9,7 @@ public class WallSettings : MonoBehaviour
     private Ball _destroyedActiveBall;
 
     public Vector2 WallNormal { get => _wallNormal; }
+
     public bool IsDestroyingWall { get => _isDestroyingWall; }
 
     private void Awake()
@@ -32,7 +33,6 @@ public class WallSettings : MonoBehaviour
                 break;
         }
 
-
         GameplayEvents.OnActiveBallSetOnField.AddListener(RemoveDestroyedActiveBall);
     }
 
@@ -54,8 +54,6 @@ public class WallSettings : MonoBehaviour
                     _destroyedActiveBall.DestroyBall();
                     _destroyedActiveBall = null;
                 }
-
-                
             }
         }
     }
@@ -69,9 +67,7 @@ public class WallSettings : MonoBehaviour
                 Ball ball = collision.GetComponent<Ball>();
 
                 if (ball.IsActiveBall)
-                {
                     _destroyedActiveBall = ball;
-                }
             }
         }
     }

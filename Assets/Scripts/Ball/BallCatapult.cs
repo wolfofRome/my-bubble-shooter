@@ -6,15 +6,18 @@ using System.Linq;
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
 public class BallCatapult : MonoBehaviour
-{ 
+{
+    [Header("General")]
     [SerializeField] private float _maxPullBackDistance = 2f;
     [SerializeField] private float _nonShootPullBackDistance = 0.5f;
+    [Range(10f, 180f)]
+    [SerializeField] private float _maxMoveBallAngle;
     [SerializeField] private Transform _nextBallPosition;
-    [SerializeField] private Trajectory _mainTrajectory;
+    [SerializeField] private Trajectory _trajectory;
 
+    private Ball _activeBall;
     private int _countAvailableBalls = 1;
     private Queue<Ball> _availableBalls = new Queue<Ball>();
-    private Ball _activeBall;
     private List<BallTypePrefab> _activeBallPrefabs;
 
     public int CountAvailableBalls
@@ -60,11 +63,21 @@ public class BallCatapult : MonoBehaviour
 
     private void Awake()
     {
+        if(_trajectory == null)
+        {
+            Debug.LogError("Trajectory is not set!");
+            return;
+        }
+
         _activeBallPrefabs = LevelDataHolder.LevelData.BallsTypeInLevel;
         _countAvailableBalls = LevelDataHolder.LevelData.CountAvailableBalls;
 
+        GameplayEvents.OnActiveBallSetOnField.AddListener(_trajectory.HideTrajectory);
         GameplayEvents.OnActiveBallSetOnField.AddListener(ChangeActiveBall);
+
+        GameplayEvents.OnActiveBallDestroyed.AddListener(_trajectory.HideTrajectory);
         GameplayEvents.OnActiveBallDestroyed.AddListener(ChangeActiveBall);
+
     }
 
     private void Start()
@@ -87,7 +100,7 @@ public class BallCatapult : MonoBehaviour
     private void OnMouseDrag()
     {
         PullBackBall();
-        _mainTrajectory.ShowTrajectory(_activeBall, CalculateForceForBall());
+        _trajectory.ShowTrajectory(_activeBall, CalculateForceForBall());
     }
 
     private void OnMouseUp()
@@ -95,7 +108,8 @@ public class BallCatapult : MonoBehaviour
         if (GetPullBackDistance() <= _nonShootPullBackDistance)
         {
             MoveBallAtCatapultPosition(_activeBall);
-            return;
+            _trajectory.HideTrajectory(_activeBall);
+            return; 
         }
 
         _activeBall.MoveBall(CalculateForceForBall());
@@ -104,24 +118,29 @@ public class BallCatapult : MonoBehaviour
     private void OnDestroy()
     {
         GameplayEvents.OnActiveBallSetOnField.RemoveListener(ChangeActiveBall);
+        GameplayEvents.OnActiveBallSetOnField.RemoveListener(_trajectory.HideTrajectory);
+
         GameplayEvents.OnActiveBallDestroyed.RemoveListener(ChangeActiveBall);
+        GameplayEvents.OnActiveBallDestroyed.RemoveListener(_trajectory.HideTrajectory);
     }
 
     private void PullBackBall()
     {
-        Vector2 mousePosition = GetMousePosition();
-        float currentPullBackDistance = GetPullBackDistance();
+        Vector2 mouseCatapultDistance = GetMousePosition() - CatapultRb.position;
+        Vector2 direction = mouseCatapultDistance.normalized;
 
-        if (currentPullBackDistance >= _maxPullBackDistance)
+        if(Vector2.SignedAngle(CatapultRb.position, mouseCatapultDistance) >= _maxMoveBallAngle)
         {
-            _activeBall.RbBall.MovePosition(CatapultRb.position + (mousePosition - CatapultRb.position).normalized * _maxPullBackDistance);
-
-        }
-        else
-        {
-            _activeBall.RbBall.MovePosition(mousePosition);
+            direction = Quaternion.Euler(0, 0, _maxMoveBallAngle) * Vector2.down;
         }
 
+        if(Vector2.SignedAngle(CatapultRb.position, mouseCatapultDistance) <= _maxMoveBallAngle * -1)
+        {
+            direction = Quaternion.Euler(0, 0, _maxMoveBallAngle * -1) * Vector2.down;
+        }
+        
+        _activeBall.RbBall.MovePosition(CatapultRb.position + direction * GetPullBackDistance());
+        
         //Debug.Log(CalculateForceForBall());
         //Debug.Log(Mathf.Round(currentPullBackDistance / _maxPullBackDistance * 100));
     }
@@ -179,7 +198,7 @@ public class BallCatapult : MonoBehaviour
 
     private Vector2 CalculateForceForBall()
     {
-        return ((GetMousePosition() - CatapultRb.position).normalized * -1) * GetPullBackDistance();
+        return ((_activeBall.RbBall.position - CatapultRb.position).normalized * -1) * GetPullBackDistance();
     }
 
     private BallTypePrefab GetRandomBallType()

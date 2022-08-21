@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Van.HexGrid;
@@ -14,6 +13,8 @@ public class LevelField : MonoBehaviour
     private TextAsset _level;
     private readonly List<BallTypePrefab> _ballPrefabs = new List<BallTypePrefab>();
     private readonly List<Ball> _ballsOnField = new List<Ball>();
+
+    public HexGrid FieldGrid { get => _fieldGrid; }
 
     private void Awake()
     {
@@ -78,7 +79,6 @@ public class LevelField : MonoBehaviour
                 ball.IsFirstLineBall = true;
             }
                 
-
             ball.TypeId = type;
             SetBallAtField(ball, cell);
 
@@ -135,35 +135,6 @@ public class LevelField : MonoBehaviour
     {
         dropBall.CircleCollider.isTrigger = true;
         dropBall.JointConnection.enabled = false;
-    }
-
-    private List<HexCell> GetBallGroupCells(Ball ball)
-    {
-        HexCell cell = _fieldGrid.GetCellFromPosition(ball.RbBall.position);
-
-        if(cell == null)
-        {
-            return null;
-        }
-
-        List<HexCell> ballGroupCells = new List<HexCell>();
-        ballGroupCells.Add(cell);
-
-        for (int i = 0; i < ballGroupCells.Count; i++)
-        {
-            foreach (HexCell neighbor in ballGroupCells[i].Neighbors)
-            {
-                if (neighbor == null || neighbor.GetBall() == null)
-                    continue;
-
-                if (!ballGroupCells.Contains(neighbor) && neighbor.GetBall().TypeId == cell.GetBall().TypeId)
-                {
-                    ballGroupCells.Add(neighbor);
-                }
-            }
-        }
-
-        return ballGroupCells;
     }
 
     private void TryDestroyBallGroup(Ball ball)
@@ -294,4 +265,28 @@ public class LevelField : MonoBehaviour
         }
     }
 
+    private List<HexCell> GetBallGroupCells(Ball ball)
+    {
+        HexCell cell = _fieldGrid.GetCellFromPosition(ball.RbBall.position);
+
+        if (cell == null)
+            return null;
+
+        List<HexCell> ballGroupCells = new List<HexCell>();
+        ballGroupCells.Add(cell);
+
+        for (int i = 0; i < ballGroupCells.Count; i++)
+        {
+            foreach (HexCell neighbor in ballGroupCells[i].Neighbors)
+            {
+                if (neighbor == null || neighbor.GetBall() == null)
+                    continue;
+
+                if (!ballGroupCells.Contains(neighbor) && neighbor.GetBall().TypeId == cell.GetBall().TypeId)
+                    ballGroupCells.Add(neighbor);
+            }
+        }
+
+        return ballGroupCells;
+    }
 }

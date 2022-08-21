@@ -8,8 +8,6 @@ using System.Linq;
 [RequireComponent(typeof(CircleCollider2D))]
 public class Ball : MonoBehaviour
 {
-    public SpriteRenderer sr;
-
     private bool _isBallCollide;
     private bool _isActiveBall;
     private bool _isFirstLineBall = false;
@@ -67,11 +65,6 @@ public class Ball : MonoBehaviour
     }
     #endregion
 
-    private void Start()
-    {
-        sr = GetComponent<SpriteRenderer>();
-    }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.rigidbody.GetComponent<Ball>() != null && _isActiveBall)
@@ -128,7 +121,7 @@ public class Ball : MonoBehaviour
     {
         if (IsActiveBall)
             GameplayEvents.OnActiveBallDestroyed.Invoke(this);
-
+            
         gameObject.SetActive(false);
     }
 }

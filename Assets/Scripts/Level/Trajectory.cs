@@ -1,12 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Van.HexGrid;
 
-[RequireComponent(typeof(LineRenderer))]
 public class Trajectory : MonoBehaviour
 {
-    [SerializeField] private int _trajectoryPointsCount;
-
+    [Header("General")]
+    [SerializeField] private LevelField _levelField;
+    [SerializeField] private LineRenderer _linePrefab;
+    [Min(1)]
+    [SerializeField] private int _linesCount = 1;
+    [Min(2)]
+    [SerializeField] private int _maxLinePointCount = 2;
+    
+    private List<LineRenderer> _lineRenderers;
+    
     #region Cache components
     private CameraSettings _cameraSettings;
     public CameraSettings CameraSettings
@@ -18,57 +26,106 @@ public class Trajectory : MonoBehaviour
             return _cameraSettings;
         }
     }
-
-    private LineRenderer _lineRenderer;
-    public LineRenderer LineRenderer
-    {
-        get
-        {
-            if (_lineRenderer == null)
-                _lineRenderer = GetComponent<LineRenderer>();
-            return _lineRenderer;
-        }
-    }
     #endregion
 
-    public void ShowTrajectory(Ball ball, Vector2 force)
+    private void Awake()
     {
-        Vector3[] points = new Vector3[_trajectoryPointsCount];
-        LineRenderer.positionCount = _trajectoryPointsCount;
-
-        float time = 0;
-
-        points[0] = ball.RbBall.position;
-        for(int i = 1; i < points.Length; i++)
+        if (_levelField == null)
         {
-            Vector2 point = (Vector2)points[i - 1] + force + Mathf.Pow(time, 2) * Physics2D.gravity / 2;
+            Debug.LogError("Level field object is not set!");
+            return;
+        }
+            
+        if (_linePrefab == null)
+        {
+            Debug.LogError("Trajectory prefab is not set!");
+            return;
+        }
+            
 
-            if(point.x >= CameraSettings.WorldViewportMax.x)
-            {
-                Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMax.x, CameraSettings.WorldViewportMax.y * -1);
-                point = Intersection(points[i - 1], point, minLinePoint, CameraSettings.WorldViewportMax);
-                force = Vector2.Reflect(force, Vector2.left);
-            }
+        _lineRenderers = new List<LineRenderer>();
 
-            if(point.x <= CameraSettings.WorldViewportMin.x)
-            {
-                Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMin.x, CameraSettings.WorldViewportMin.y * -1);
-                point = Intersection(points[i - 1], point, minLinePoint, CameraSettings.WorldViewportMin);
-                force = Vector2.Reflect(force, Vector2.right);
-            }
-
-            if (point.y >= CameraSettings.WorldViewportMax.y)
-            {
-                Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMax.x * -1, CameraSettings.WorldViewportMax.y );
-                point = Intersection(points[i - 1], point, minLinePoint, CameraSettings.WorldViewportMax);
-                force = Vector2.Reflect(force, Vector2.down);
-            }
-
-            points[i] = point;
-            time += Time.fixedDeltaTime;
+        for (int i = 0; i < _linesCount; i++)
+        {
+            LineRenderer lineRenderer = Instantiate(_linePrefab, transform);
+            _lineRenderers.Add(lineRenderer);
         }
 
-        LineRenderer.SetPositions(points);
+    }
+
+    public void ShowTrajectory(Ball activeBall, Vector2 force)
+    {
+        float time = 0;
+        Vector3 currentPoint = activeBall.RbBall.position;
+        bool isPointIntersectBall = false;
+        List<Vector3> points = new List<Vector3>();
+
+
+        foreach (LineRenderer trajectory in _lineRenderers)
+        {
+            trajectory.material.mainTextureScale = new Vector2(1f / trajectory.startWidth, 1f);
+            
+            points.Add(currentPoint);
+
+            for (int i = 0; i < _maxLinePointCount; i++)
+            {
+                if (isPointIntersectBall)
+                    break;
+
+                currentPoint = (Vector2)points[i] + force + Mathf.Pow(time, 2) * Physics2D.gravity / 2;
+
+                HexCell pointCell = _levelField.FieldGrid.GetCellFromPosition(currentPoint);
+                if (pointCell != null && pointCell.GetBall() != null)
+                {
+                    points.Add(currentPoint);
+                    isPointIntersectBall = true;
+                    break;
+                }
+
+                if (currentPoint.x >= CameraSettings.WorldViewportMax.x)
+                {
+                    Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMax.x, CameraSettings.WorldViewportMax.y * -1);
+                    currentPoint = Intersection(points[i], currentPoint, minLinePoint, CameraSettings.WorldViewportMax);
+                    force = Vector2.Reflect(force, Vector2.left);
+                    points.Add(currentPoint);
+                    break;
+                }
+
+                if (currentPoint.x <= CameraSettings.WorldViewportMin.x)
+                {
+                    Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMin.x, CameraSettings.WorldViewportMin.y * -1);
+                    currentPoint = Intersection(points[i], currentPoint, minLinePoint, CameraSettings.WorldViewportMin);
+                    force = Vector2.Reflect(force, Vector2.right);
+                    points.Add(currentPoint);
+                    break;
+                }
+
+                if (currentPoint.y >= CameraSettings.WorldViewportMax.y)
+                {
+                    Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMax.x * -1, CameraSettings.WorldViewportMax.y);
+                    currentPoint = Intersection(points[i], currentPoint, minLinePoint, CameraSettings.WorldViewportMax);
+                    force = Vector2.Reflect(force, Vector2.down);
+                    points.Add(currentPoint);
+                    break;
+                }
+
+                points.Add(currentPoint);
+
+                time += Time.fixedDeltaTime;
+            }
+
+            trajectory.positionCount = points.Count;
+            trajectory.SetPositions(points.ToArray());
+            points.Clear();
+        }
+    }
+
+    public void HideTrajectory(Ball activeBall)
+    {
+        foreach (LineRenderer line in _lineRenderers)
+        {
+            line.positionCount = 0;
+        }
     }
 
     private Vector2 Intersection(Vector2 linePointMin1, Vector2 linePointMax1, Vector2 linePointMin2, Vector2 linePointMax2)
