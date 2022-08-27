@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Van.HexGrid;
@@ -7,13 +6,11 @@ public class Trajectory : MonoBehaviour
 {
     [Header("General")]
     [SerializeField] private LevelField _levelField;
-    [SerializeField] private LineRenderer _linePrefab;
+    [SerializeField] private TrajectoryLine _trajectoryLinePrefab;
     [Min(1)]
     [SerializeField] private int _linesCount = 1;
-    [Min(2)]
-    [SerializeField] private int _maxLinePointCount = 2;
     
-    private List<LineRenderer> _lineRenderers;
+    private List<TrajectoryLine> _trajectoryLines;
     
     #region Cache components
     private CameraSettings _cameraSettings;
@@ -36,38 +33,36 @@ public class Trajectory : MonoBehaviour
             return;
         }
             
-        if (_linePrefab == null)
+        if (_trajectoryLinePrefab == null)
         {
             Debug.LogError("Trajectory prefab is not set!");
             return;
         }
             
-
-        _lineRenderers = new List<LineRenderer>();
+        _trajectoryLines = new List<TrajectoryLine>();
 
         for (int i = 0; i < _linesCount; i++)
         {
-            LineRenderer lineRenderer = Instantiate(_linePrefab, transform);
-            _lineRenderers.Add(lineRenderer);
+            TrajectoryLine lineRenderer = Instantiate(_trajectoryLinePrefab, transform);
+            _trajectoryLines.Add(lineRenderer);
         }
 
     }
 
     public void ShowTrajectory(Ball activeBall, Vector2 force)
     {
-        float time = 0;
-        Vector3 currentPoint = activeBall.RbBall.position;
+        float time = 0f;
         bool isPointIntersectBall = false;
         List<Vector3> points = new List<Vector3>();
 
-
-        foreach (LineRenderer trajectory in _lineRenderers)
+        Vector3 currentPoint = activeBall.RbBall.position;
+        
+        foreach (TrajectoryLine trajectoryLine in _trajectoryLines)
         {
-            trajectory.material.mainTextureScale = new Vector2(1f / trajectory.startWidth, 1f);
-            
+            trajectoryLine.UpdateLineScale();
             points.Add(currentPoint);
 
-            for (int i = 0; i < _maxLinePointCount; i++)
+            for (int i = 0; i < trajectoryLine.MaxLinePointCount; i++)
             {
                 if (isPointIntersectBall)
                     break;
@@ -77,7 +72,6 @@ public class Trajectory : MonoBehaviour
                 HexCell pointCell = _levelField.FieldGrid.GetCellFromPosition(currentPoint);
                 if (pointCell != null && pointCell.GetBall() != null)
                 {
-                    points.Add(currentPoint);
                     isPointIntersectBall = true;
                     break;
                 }
@@ -114,17 +108,16 @@ public class Trajectory : MonoBehaviour
                 time += Time.fixedDeltaTime;
             }
 
-            trajectory.positionCount = points.Count;
-            trajectory.SetPositions(points.ToArray());
+            trajectoryLine.GenerateTrajectoryLine(points);
             points.Clear();
         }
     }
 
     public void HideTrajectory(Ball activeBall)
     {
-        foreach (LineRenderer line in _lineRenderers)
+        foreach (TrajectoryLine trajectoryLine in _trajectoryLines)
         {
-            line.positionCount = 0;
+            trajectoryLine.ClearTrajectoryLinePoints();
         }
     }
 

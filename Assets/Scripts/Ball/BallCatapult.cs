@@ -174,10 +174,8 @@ public class BallCatapult : MonoBehaviour
     private void SetNextBall()
     {
         if (_countAvailableBalls == 0)
-        {
             return;
-        }
-
+        
         _availableBalls.Peek().gameObject.SetActive(true);
     }
 

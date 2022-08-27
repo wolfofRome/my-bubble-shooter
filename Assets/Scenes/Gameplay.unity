@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _levelField: {fileID: 2048295027}
-  _linePrefab: {fileID: 4187969066031917567, guid: 5de1ed90a96ac624794d73515f3588fb, type: 3}
+  _trajectoryLinePrefab: {fileID: 2846689043223385432, guid: 5de1ed90a96ac624794d73515f3588fb, type: 3}
   _linesCount: 6
   _maxLinePointCount: 30
 --- !u!4 &498095400
@@ -284,8 +284,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1241389283}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &576060901
 GameObject:
@@ -385,9 +385,8 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 576060902}
-  - {fileID: 498095400}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1241389284
 MonoBehaviour:

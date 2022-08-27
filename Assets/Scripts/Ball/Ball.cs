@@ -18,6 +18,13 @@ public class Ball : MonoBehaviour
     public bool IsActiveBall { get => _isActiveBall; set => _isActiveBall = value; }
     public bool IsFirstLineBall { get => _isFirstLineBall; set => _isFirstLineBall = value; }
     public string TypeId { get => _typeId; set => _typeId = value; }
+    public float BallRadius
+    {
+        get
+        {
+            return transform.localScale.x * CircleCollider.radius;
+        }
+    }
 
     public FixedJoint2D JointConnection
     {
