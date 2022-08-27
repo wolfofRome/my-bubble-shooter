@@ -16,6 +16,7 @@ public class LevelField : MonoBehaviour
 
     public HexGrid FieldGrid { get => _fieldGrid; }
 
+
     private void Awake()
     {
         _ballPrefabs.AddRange(LevelDataHolder.LevelData.BallsTypeInLevel);
@@ -72,12 +73,6 @@ public class LevelField : MonoBehaviour
 
             HexCell cell = _fieldGrid.Cells[fromIndex + cellIndex];
             Ball ball = Instantiate(_ballPrefab.Prefab, transform);
-
-            if (fromIndex == _fieldGrid.Cells.Length - _fieldGrid.Width)
-            {
-                ball.RbBall.bodyType = RigidbodyType2D.Static;
-                ball.IsFirstLineBall = true;
-            }
                 
             ball.TypeId = type;
             SetBallAtField(ball, cell);
@@ -104,6 +99,9 @@ public class LevelField : MonoBehaviour
         cell.SetBall(ball);
         _ballsOnField.Add(ball);
 
+        if (cell.GetNeighbor(HexDirection.NW) == null && cell.GetNeighbor(HexDirection.NE) == null)
+            ball.IsFirstLineBall = true;
+
         ball.transform.position = cell.transform.position;
         ball.AddJointConnection(cell.transform.position);
 
@@ -115,13 +113,6 @@ public class LevelField : MonoBehaviour
     {
         HexCell cell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position);
         SetBallAtField(activeBall, cell);
-
-        if (cell.GetNeighbor(HexDirection.NW) == null && cell.GetNeighbor(HexDirection.NE) == null)
-        {
-            activeBall.RbBall.bodyType = RigidbodyType2D.Static;
-            activeBall.IsFirstLineBall = true;
-        }
-
         GameplayEvents.OnActiveBallSetOnField.Invoke(activeBall);
     }
 

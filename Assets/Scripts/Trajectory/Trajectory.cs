@@ -52,7 +52,7 @@ public class Trajectory : MonoBehaviour
     public void ShowTrajectory(Ball activeBall, Vector2 force)
     {
         float time = 0f;
-        bool isPointIntersectBall = false;
+        bool isTrajectoryEnd = false;
         List<Vector3> points = new List<Vector3>();
 
         Vector3 currentPoint = activeBall.RbBall.position;
@@ -64,7 +64,7 @@ public class Trajectory : MonoBehaviour
 
             for (int i = 0; i < trajectoryLine.MaxLinePointCount; i++)
             {
-                if (isPointIntersectBall)
+                if (isTrajectoryEnd)
                     break;
 
                 currentPoint = (Vector2)points[i] + force + Mathf.Pow(time, 2) * Physics2D.gravity / 2;
@@ -72,7 +72,7 @@ public class Trajectory : MonoBehaviour
                 HexCell pointCell = _levelField.FieldGrid.GetCellFromPosition(currentPoint);
                 if (pointCell != null && pointCell.GetBall() != null)
                 {
-                    isPointIntersectBall = true;
+                    isTrajectoryEnd = true;
                     break;
                 }
 
@@ -96,10 +96,7 @@ public class Trajectory : MonoBehaviour
 
                 if (currentPoint.y >= CameraSettings.WorldViewportMax.y)
                 {
-                    Vector2 minLinePoint = new Vector2(CameraSettings.WorldViewportMax.x * -1, CameraSettings.WorldViewportMax.y);
-                    currentPoint = Intersection(points[i], currentPoint, minLinePoint, CameraSettings.WorldViewportMax);
-                    force = Vector2.Reflect(force, Vector2.down);
-                    points.Add(currentPoint);
+                    isTrajectoryEnd = true;
                     break;
                 }
 

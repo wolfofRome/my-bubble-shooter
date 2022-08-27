@@ -8,13 +8,13 @@ using System.Linq;
 [RequireComponent(typeof(CircleCollider2D))]
 public class Ball : MonoBehaviour
 {
-    private bool _isBallCollide;
+    private bool _isBallCollided;
     private bool _isActiveBall;
     private bool _isFirstLineBall = false;
     private string _typeId;
     private WallSettings _wallSettingsCollision;
-    private FixedJoint2D _jointConnection;
-
+    
+    public bool IsBallCollided { get => _isBallCollided; set => _isBallCollided = value; }
     public bool IsActiveBall { get => _isActiveBall; set => _isActiveBall = value; }
     public bool IsFirstLineBall { get => _isFirstLineBall; set => _isFirstLineBall = value; }
     public string TypeId { get => _typeId; set => _typeId = value; }
@@ -25,15 +25,24 @@ public class Ball : MonoBehaviour
             return transform.localScale.x * CircleCollider.radius;
         }
     }
-
-    public FixedJoint2D JointConnection
+    public WallSettings WallSettingsCollision
     {
         get
         {
-            if (_jointConnection == null)
-                Debug.LogWarning("Joint connection is not set!");
+            if (_wallSettingsCollision == null)
+                Debug.LogError("Wall settings collison is not set!");
+            return _wallSettingsCollision;
+        }
 
-            return _jointConnection;
+        set
+        {
+            if (value == null)
+            {
+                Debug.LogError("Wall settings collision is equal null!");
+                return;
+            }
+
+            _wallSettingsCollision = value;
         }
     }
 
@@ -70,23 +79,27 @@ public class Ball : MonoBehaviour
             return _circleCollider;
         }
     }
+
+    private FixedJoint2D _jointConnection;
+    public FixedJoint2D JointConnection
+    {
+        get
+        {
+            if (_jointConnection == null)
+                Debug.LogWarning("Joint connection is not set!");
+
+            return _jointConnection;
+        }
+    }
     #endregion
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.rigidbody.GetComponent<Ball>() != null && _isActiveBall)
+        Ball collidedBall;
+        if (collision.gameObject.TryGetComponent<Ball>(out collidedBall) && _isActiveBall)
         {
-            if (_isBallCollide != true)
-                _isBallCollide = true;
-
+            _isBallCollided = true;
             GameplayEvents.OnActiveBallCollided.Invoke(this);
-            return;
-        }
-
-        if (collision.rigidbody.GetComponent<WallSettings>() != null && _isActiveBall)
-        {
-            _wallSettingsCollision = collision.rigidbody.GetComponent<WallSettings>();
-            return;
         }
     }
 
@@ -97,10 +110,10 @@ public class Ball : MonoBehaviour
 
     public IEnumerator MoveBallCoroutine(Vector2 force)
     {
-        _isBallCollide = false;
+        _isBallCollided = false;
 
         float time = 0;
-        while (!_isBallCollide)
+        while (!_isBallCollided)
         {   
             if (_wallSettingsCollision != null)
             {

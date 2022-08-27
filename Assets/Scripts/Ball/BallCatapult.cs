@@ -100,7 +100,11 @@ public class BallCatapult : MonoBehaviour
     private void OnMouseDrag()
     {
         PullBackBall();
-        _trajectory.ShowTrajectory(_activeBall, CalculateForceForBall());
+
+        if (GetPullBackDistance() >= _nonShootPullBackDistance)
+            _trajectory.ShowTrajectory(_activeBall, CalculateForceForBall());
+        else
+            _trajectory.HideTrajectory(_activeBall);
     }
 
     private void OnMouseUp()

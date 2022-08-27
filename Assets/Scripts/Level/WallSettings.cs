@@ -3,14 +3,14 @@ using UnityEngine;
 public class WallSettings : MonoBehaviour
 {
     [SerializeField] private WallPosition _position;
-    [SerializeField] private bool _isDestroyingWall;
+    [SerializeField] private WallFunction _wallFunction;
 
     private Vector2 _wallNormal;
     private Ball _destroyedActiveBall;
 
     public Vector2 WallNormal { get => _wallNormal; }
 
-    public bool IsDestroyingWall { get => _isDestroyingWall; }
+    public WallFunction WallFunctionValue { get => _wallFunction; }
 
     private void Awake()
     {
@@ -38,7 +38,7 @@ public class WallSettings : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (IsDestroyingWall)
+        if (WallFunctionValue == WallFunction.Destroy)
         {
             if (collision.GetComponent<Ball>() != null)
             {
@@ -60,7 +60,7 @@ public class WallSettings : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (IsDestroyingWall)
+        if (WallFunctionValue == WallFunction.Destroy)
         {
             if (collision.GetComponent<Ball>())
             {
@@ -69,6 +69,32 @@ public class WallSettings : MonoBehaviour
                 if (ball.IsActiveBall)
                     _destroyedActiveBall = ball;
             }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Ball collisionBall;
+        if (!collision.gameObject.TryGetComponent<Ball>(out collisionBall))
+            return;
+
+        if (WallFunctionValue == WallFunction.Reflect)
+        {
+            if (collisionBall.IsActiveBall)
+                collisionBall.WallSettingsCollision = this;
+        }
+        else if(WallFunctionValue == WallFunction.AttachToField)
+        {
+            if (collisionBall.IsActiveBall)
+            {
+                collisionBall.IsBallCollided = true;
+                GameplayEvents.OnActiveBallCollided.Invoke(collisionBall);
+            }
+                
+        }
+        else if(WallFunctionValue == WallFunction.Destroy)
+        {
+            collisionBall.DestroyBall();
         }
     }
 
@@ -89,4 +115,11 @@ public enum WallPosition
     Right,
     Down,
     Top
+}
+
+public enum WallFunction
+{
+    Reflect,
+    Destroy,
+    AttachToField
 }
