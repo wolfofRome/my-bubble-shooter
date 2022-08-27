@@ -113,6 +113,7 @@ public class LevelField : MonoBehaviour
     {
         HexCell cell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position);
         SetBallAtField(activeBall, cell);
+        activeBall.IsActiveBall = false;
         GameplayEvents.OnActiveBallSetOnField.Invoke(activeBall);
     }
 
@@ -139,7 +140,11 @@ public class LevelField : MonoBehaviour
         }
 
         if (ballGroupCells.Count < 3)
+        {
+            GameplayEvents.OnAllGameActionsEnd.Invoke();
             return;
+        }
+            
 
         foreach (HexCell cell in ballGroupCells)
         {
@@ -254,6 +259,8 @@ public class LevelField : MonoBehaviour
                 RemoveBallFromField(b);
             }
         }
+
+        GameplayEvents.OnAllGameActionsEnd.Invoke();
     }
 
     private List<HexCell> GetBallGroupCells(Ball ball)

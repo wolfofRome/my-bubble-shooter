@@ -37,6 +37,7 @@ public class BallCatapult : MonoBehaviour
         }
     }
 
+
     #region Cache Components
     private Rigidbody2D _catapultRb;
     public Rigidbody2D CatapultRb
@@ -46,6 +47,17 @@ public class BallCatapult : MonoBehaviour
             if (_catapultRb == null)
                 _catapultRb = GetComponent<Rigidbody2D>();
             return _catapultRb;
+        }
+    }
+
+    private BoxCollider2D _catapultBoxCollider;
+    public BoxCollider2D CatapultBoxCollider
+    {
+        get
+        {
+            if (_catapultBoxCollider == null)
+                _catapultBoxCollider = GetComponent<BoxCollider2D>();
+            return _catapultBoxCollider;
         }
     }
 
@@ -72,11 +84,8 @@ public class BallCatapult : MonoBehaviour
         _activeBallPrefabs = LevelDataHolder.LevelData.BallsTypeInLevel;
         _countAvailableBalls = LevelDataHolder.LevelData.CountAvailableBalls;
 
-        GameplayEvents.OnActiveBallSetOnField.AddListener(_trajectory.HideTrajectory);
-        GameplayEvents.OnActiveBallSetOnField.AddListener(ChangeActiveBall);
-
-        GameplayEvents.OnActiveBallDestroyed.AddListener(_trajectory.HideTrajectory);
-        GameplayEvents.OnActiveBallDestroyed.AddListener(ChangeActiveBall);
+        GameplayEvents.OnAllGameActionsEnd.AddListener(UnlockCatapult);
+        GameplayEvents.OnAllGameActionsEnd.AddListener(ChangeActiveBall);
 
     }
 
@@ -117,15 +126,23 @@ public class BallCatapult : MonoBehaviour
         }
 
         _activeBall.MoveBall(CalculateForceForBall());
+        LockCatapult();
     }
 
     private void OnDestroy()
     {
-        GameplayEvents.OnActiveBallSetOnField.RemoveListener(ChangeActiveBall);
-        GameplayEvents.OnActiveBallSetOnField.RemoveListener(_trajectory.HideTrajectory);
+        GameplayEvents.OnAllGameActionsEnd.RemoveListener(UnlockCatapult);
+        GameplayEvents.OnAllGameActionsEnd.RemoveListener(ChangeActiveBall);
+    }
 
-        GameplayEvents.OnActiveBallDestroyed.RemoveListener(ChangeActiveBall);
-        GameplayEvents.OnActiveBallDestroyed.RemoveListener(_trajectory.HideTrajectory);
+    public void LockCatapult()
+    {
+        CatapultBoxCollider.enabled = false;
+    }
+
+    public void UnlockCatapult()
+    {
+        CatapultBoxCollider.enabled = true;
     }
 
     private void PullBackBall()
@@ -154,10 +171,8 @@ public class BallCatapult : MonoBehaviour
         ball.RbBall.position = transform.position;
     }
 
-    private void ChangeActiveBall(Ball activeBall)
+    private void ChangeActiveBall()
     {
-        activeBall.IsActiveBall = false;
-
         SetActiveBall();
         CountAvailableBalls -= 1;
 

@@ -38,7 +38,10 @@ public class Trajectory : MonoBehaviour
             Debug.LogError("Trajectory prefab is not set!");
             return;
         }
-            
+
+        GameplayEvents.OnActiveBallSetOnField.AddListener(HideTrajectory);
+        GameplayEvents.OnActiveBallDestroyed.AddListener(HideTrajectory);
+
         _trajectoryLines = new List<TrajectoryLine>();
 
         for (int i = 0; i < _linesCount; i++)
@@ -47,6 +50,12 @@ public class Trajectory : MonoBehaviour
             _trajectoryLines.Add(lineRenderer);
         }
 
+    }
+
+    private void OnDestroy()
+    {
+        GameplayEvents.OnActiveBallSetOnField.RemoveListener(HideTrajectory);
+        GameplayEvents.OnActiveBallDestroyed.RemoveListener(HideTrajectory);
     }
 
     public void ShowTrajectory(Ball activeBall, Vector2 force)
