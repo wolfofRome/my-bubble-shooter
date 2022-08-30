@@ -12,31 +12,12 @@ public class BallCatapult : MonoBehaviour
     [SerializeField] private float _nonShootPullBackDistance = 0.5f;
     [Range(10f, 180f)]
     [SerializeField] private float _maxMoveBallAngle;
-    [SerializeField] private Transform _nextBallPosition;
+    [SerializeField] private Transform _nextBallHolder;
     [SerializeField] private Trajectory _trajectory;
 
     private Ball _activeBall;
-    private int _countAvailableBalls = 1;
     private Queue<Ball> _availableBalls = new Queue<Ball>();
     private List<BallTypePrefab> _activeBallPrefabs;
-
-    public int CountAvailableBalls
-    {
-        set 
-        {
-            if (value == 0)
-                return;
-
-            _countAvailableBalls = value;
-            GameplayEvents.OnCountAvailableBallsChanged.Invoke(_countAvailableBalls);
-        }
-
-        get
-        {
-            return _countAvailableBalls;
-        }
-    }
-
 
     #region Cache Components
     private Rigidbody2D _catapultRb;
@@ -82,19 +63,17 @@ public class BallCatapult : MonoBehaviour
         }
 
         _activeBallPrefabs = LevelDataHolder.LevelData.BallsTypeInLevel;
-        _countAvailableBalls = LevelDataHolder.LevelData.CountAvailableBalls;
 
         GameplayEvents.OnAllGameActionsEnd.AddListener(UnlockCatapult);
         GameplayEvents.OnAllGameActionsEnd.AddListener(ChangeActiveBall);
-
     }
 
     private void Start()
     {
-        for(int i = 0; i<100; i++)
+        for(int i = 0; i < LevelDataHolder.LevelData.CountAvailableBalls; i++)
         {
             BallTypePrefab ballTypePrefab = GetRandomBallType();
-            Ball ball = Instantiate(ballTypePrefab.Prefab, _nextBallPosition.position, Quaternion.identity, _nextBallPosition);
+            Ball ball = Instantiate(ballTypePrefab.Prefab, _nextBallHolder.position, Quaternion.identity, _nextBallHolder);
             ball.TypeId = ballTypePrefab.Id;
             ball.RbBall.mass = 0f;
             ball.gameObject.SetActive(false);
@@ -102,8 +81,7 @@ public class BallCatapult : MonoBehaviour
             _availableBalls.Enqueue(ball);
         }
 
-        SetActiveBall();
-        SetNextBall();
+        ChangeActiveBall();
     }
 
     private void OnMouseDrag()
@@ -174,28 +152,31 @@ public class BallCatapult : MonoBehaviour
     private void ChangeActiveBall()
     {
         SetActiveBall();
-        CountAvailableBalls -= 1;
-
-        SetNextBall();
+        ShowNextBall();
     }
 
     private void SetActiveBall()
     {
-        _activeBall = _availableBalls.Dequeue();
-        _activeBall.transform.SetParent(transform);
+        if(!_availableBalls.TryDequeue(out _activeBall))
+        {
+            GameplayEvents.OnAvailableBallsEnd.Invoke();
+            return;
+        }
 
-        _activeBall.transform.position = transform.position;
 
-        _activeBall.IsActiveBall = true;
         _activeBall.gameObject.SetActive(true);
+        _activeBall.transform.SetParent(transform);
+        _activeBall.transform.position = transform.position;
+        _activeBall.IsActiveBall = true;
     }
 
-    private void SetNextBall()
+    private void ShowNextBall()
     {
-        if (_countAvailableBalls == 0)
+        if (_availableBalls.Count == 0)
             return;
-        
-        _availableBalls.Peek().gameObject.SetActive(true);
+
+        //_nextBall.NextBallImage.sprite = _availableBalls.Peek().BallSpriteRenderer.sprite;
+        //_nextBall.NextBallImage.color = _availableBalls.Peek().BallSpriteRenderer.color;
     }
 
     private float GetPullBackDistance()

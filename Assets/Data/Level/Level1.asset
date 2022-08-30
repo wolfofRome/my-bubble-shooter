@@ -15,7 +15,7 @@ MonoBehaviour:
   _pathToLevelFile: Assets/Resources/Levels
   _levelFile: {fileID: 4900000, guid: 5ebce29cbd1b2c64bbc57a8776fab017, type: 3}
   _levelName: Level 1
-  _countAvailableBalls: 20
+  _countAvailableBalls: 30
   _ballsTypeInLevel:
   - _id: BB
     _prefab: {fileID: 4632960509643196600, guid: d454c61ee106346429db9f070d3db6c8, type: 3}

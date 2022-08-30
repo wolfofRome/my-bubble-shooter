@@ -39,6 +39,8 @@ public class UINext : MonoBehaviour
         }
 
         _nextCanvas.gameObject.SetActive(true);
-        _currentCanvas.gameObject.SetActive(false);
+
+        if(_currentCanvas != null)
+            _currentCanvas.gameObject.SetActive(false);
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(CircleCollider2D))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class Ball : MonoBehaviour
 {
     private bool _isBallCollided;
@@ -80,6 +81,17 @@ public class Ball : MonoBehaviour
         }
     }
 
+    private SpriteRenderer _spriteRenderer;
+    public SpriteRenderer BallSpriteRenderer
+    {
+        get
+        {
+            if (_spriteRenderer == null)
+                _spriteRenderer = GetComponent<SpriteRenderer>();
+            return _spriteRenderer;
+        }
+    }
+
     private FixedJoint2D _jointConnection;
     public FixedJoint2D JointConnection
     {
@@ -87,7 +99,6 @@ public class Ball : MonoBehaviour
         {
             if (_jointConnection == null)
                 Debug.LogWarning("Joint connection is not set!");
-
             return _jointConnection;
         }
     }
@@ -130,7 +141,7 @@ public class Ball : MonoBehaviour
         yield break;
     }
 
-    public void AddJointConnection(Vector2 connectedAnchorPosition)
+    public void AddJoint(Vector2 connectedAnchorPosition)
     {
         _jointConnection = gameObject.AddComponent<FixedJoint2D>();
         _jointConnection.autoConfigureConnectedAnchor = false;
