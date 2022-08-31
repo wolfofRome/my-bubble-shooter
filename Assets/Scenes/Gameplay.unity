@@ -1016,53 +1016,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 394076369}
   m_CullTransparentMesh: 1
---- !u!1 &498095398
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 498095400}
-  - component: {fileID: 498095399}
-  m_Layer: 0
-  m_Name: Trajectory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &498095399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 498095398}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b91057deea6fb34cb51e854b40ef1ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _levelField: {fileID: 2048295027}
-  _trajectoryLinePrefab: {fileID: 2846689043223385432, guid: 5de1ed90a96ac624794d73515f3588fb, type: 3}
-  _linesCount: 6
---- !u!4 &498095400
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 498095398}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &653330678
 GameObject:
   m_ObjectHideFlags: 0
@@ -2119,37 +2072,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1184840244}
   m_CullTransparentMesh: 1
---- !u!1 &1231115108
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1231115109}
-  m_Layer: 0
-  m_Name: NextBallHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1231115109
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1231115108}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.25, y: -4, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1241389283}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1241389282
 GameObject:
   m_ObjectHideFlags: 0
@@ -2162,6 +2084,7 @@ GameObject:
   - component: {fileID: 1241389285}
   - component: {fileID: 1241389287}
   - component: {fileID: 1241389284}
+  - component: {fileID: 1241389288}
   m_Layer: 0
   m_Name: BallCatapult
   m_TagString: Untagged
@@ -2180,10 +2103,9 @@ Transform:
   m_LocalPosition: {x: 0, y: -14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
-  m_Children:
-  - {fileID: 1231115109}
+  m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1241389284
 MonoBehaviour:
@@ -2197,12 +2119,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af355a5226b03f04ba361376dfe955c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _levelField: {fileID: 2048295027}
   _maxPullBackDistance: 4
   _nonShootPullBackDistance: 1
   _maxMoveBallAngle: 75
-  _nextBall: {fileID: 0}
-  _nextBallHolder: {fileID: 1231115109}
-  _trajectory: {fileID: 498095399}
 --- !u!61 &1241389285
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2250,6 +2170,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &1241389288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241389282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b91057deea6fb34cb51e854b40ef1ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levelField: {fileID: 2048295027}
+  _trajectoryLinePrefab: {fileID: 2846689043223385432, guid: 5de1ed90a96ac624794d73515f3588fb, type: 3}
+  _linesCount: 6
 --- !u!1 &1291100397
 GameObject:
   m_ObjectHideFlags: 0

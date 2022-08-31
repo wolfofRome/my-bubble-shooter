@@ -5,19 +5,20 @@ using System.Linq;
 
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Trajectory))]
 public class BallCatapult : MonoBehaviour
 {
     [Header("General")]
+    [SerializeField] private LevelField _levelField;
     [SerializeField] private float _maxPullBackDistance = 2f;
     [SerializeField] private float _nonShootPullBackDistance = 0.5f;
     [Range(10f, 180f)]
     [SerializeField] private float _maxMoveBallAngle;
-    [SerializeField] private Transform _nextBallHolder;
-    [SerializeField] private Trajectory _trajectory;
 
+    private Transform _availableBallsHolder;
     private Ball _activeBall;
-    private Queue<Ball> _availableBalls = new Queue<Ball>();
-    private List<BallTypePrefab> _activeBallPrefabs;
+    private readonly Queue<Ball> _availableBalls = new Queue<Ball>();
+
 
     #region Cache Components
     private Rigidbody2D _catapultRb;
@@ -52,35 +53,37 @@ public class BallCatapult : MonoBehaviour
             return _cameraSettings;
         }
     }
+
+    private Trajectory _trajectory;
+    public Trajectory CatapultTrajectory
+    {
+        get
+        {
+            if (_trajectory == null)
+                _trajectory = GetComponent<Trajectory>();
+            return _trajectory;
+        }
+    }
     #endregion
 
     private void Awake()
     {
-        if(_trajectory == null)
+        if(_levelField == null)
         {
-            Debug.LogError("Trajectory is not set!");
+            Debug.LogError("Level field is not set!");
             return;
         }
 
-        _activeBallPrefabs = LevelDataHolder.LevelData.BallsTypeInLevel;
-
-        GameplayEvents.OnAllGameActionsEnd.AddListener(UnlockCatapult);
-        GameplayEvents.OnAllGameActionsEnd.AddListener(ChangeActiveBall);
+        GameplayEvents.OnAllFieldActionsEnd.AddListener(UnlockCatapult);
+        GameplayEvents.OnAllFieldActionsEnd.AddListener(ChangeActiveBall);
     }
 
     private void Start()
     {
-        for(int i = 0; i < LevelDataHolder.LevelData.CountAvailableBalls; i++)
-        {
-            BallTypePrefab ballTypePrefab = GetRandomBallType();
-            Ball ball = Instantiate(ballTypePrefab.Prefab, _nextBallHolder.position, Quaternion.identity, _nextBallHolder);
-            ball.TypeId = ballTypePrefab.Id;
-            ball.RbBall.mass = 0f;
-            ball.gameObject.SetActive(false);
+        _availableBallsHolder = new GameObject("AvailableBallsHolder").transform;
+        _availableBallsHolder.SetParent(transform);
 
-            _availableBalls.Enqueue(ball);
-        }
-
+        GenerateAvailableBalls(LevelDataHolder.LevelData.BallsTypeInLevel, LevelDataHolder.LevelData.CountAvailableBalls);
         ChangeActiveBall();
     }
 
@@ -89,9 +92,9 @@ public class BallCatapult : MonoBehaviour
         PullBackBall();
 
         if (GetPullBackDistance() >= _nonShootPullBackDistance)
-            _trajectory.ShowTrajectory(_activeBall, CalculateForceForBall());
+            CatapultTrajectory.ShowTrajectory(_activeBall, CalculateForceForBall());
         else
-            _trajectory.HideTrajectory(_activeBall);
+            CatapultTrajectory.HideTrajectory(_activeBall);
     }
 
     private void OnMouseUp()
@@ -99,7 +102,7 @@ public class BallCatapult : MonoBehaviour
         if (GetPullBackDistance() <= _nonShootPullBackDistance)
         {
             MoveBallAtCatapultPosition(_activeBall);
-            _trajectory.HideTrajectory(_activeBall);
+            CatapultTrajectory.HideTrajectory(_activeBall);
             return; 
         }
 
@@ -109,8 +112,8 @@ public class BallCatapult : MonoBehaviour
 
     private void OnDestroy()
     {
-        GameplayEvents.OnAllGameActionsEnd.RemoveListener(UnlockCatapult);
-        GameplayEvents.OnAllGameActionsEnd.RemoveListener(ChangeActiveBall);
+        GameplayEvents.OnAllFieldActionsEnd.RemoveListener(UnlockCatapult);
+        GameplayEvents.OnAllFieldActionsEnd.RemoveListener(ChangeActiveBall);
     }
 
     public void LockCatapult()
@@ -144,6 +147,20 @@ public class BallCatapult : MonoBehaviour
         //Debug.Log(Mathf.Round(currentPullBackDistance / _maxPullBackDistance * 100));
     }
 
+    private void GenerateAvailableBalls(List<BallTypePrefab> ballsTypePrefabs, int countAvailableBalls)
+    {
+        for(int i = 0; i < countAvailableBalls; i++)
+        {
+            BallTypePrefab ballTypePrefab = GetRandomBallType(ballsTypePrefabs);
+            Ball ball = Instantiate(ballTypePrefab.Prefab, _availableBallsHolder.transform);
+            ball.TypeId = ballTypePrefab.Id;
+            ball.RbBall.mass = 0f;
+            ball.gameObject.SetActive(false);
+
+            _availableBalls.Enqueue(ball);
+        }
+    }
+
     private void MoveBallAtCatapultPosition(Ball ball)
     {
         ball.RbBall.position = transform.position;
@@ -162,7 +179,6 @@ public class BallCatapult : MonoBehaviour
             GameplayEvents.OnAvailableBallsEnd.Invoke();
             return;
         }
-
 
         _activeBall.gameObject.SetActive(true);
         _activeBall.transform.SetParent(transform);
@@ -199,8 +215,10 @@ public class BallCatapult : MonoBehaviour
         return ((_activeBall.RbBall.position - CatapultRb.position).normalized * -1) * GetPullBackDistance();
     }
 
-    private BallTypePrefab GetRandomBallType()
+    
+    private BallTypePrefab GetRandomBallType(List<BallTypePrefab> ballTypePrefabs)
     {
-        return _activeBallPrefabs[Random.Range(0, _activeBallPrefabs.Count)];
+        return ballTypePrefabs[Random.Range(0, ballTypePrefabs.Count)];
     }
+    
 }

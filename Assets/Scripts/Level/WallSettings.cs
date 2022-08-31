@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Van.HexGrid;
 
 public class WallSettings : MonoBehaviour
 {
@@ -7,6 +10,7 @@ public class WallSettings : MonoBehaviour
 
     private Vector2 _wallNormal;
     private Ball _destroyedActiveBall;
+    private readonly List<Ball> _dropedBalls = new List<Ball>();
 
     public Vector2 WallNormal { get => _wallNormal; }
 
@@ -34,6 +38,7 @@ public class WallSettings : MonoBehaviour
         }
 
         GameplayEvents.OnActiveBallSetOnField.AddListener(RemoveDestroyedActiveBall);
+        GameplayEvents.OnBallsDropStarted.AddListener(SetDropedBallsCells);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -43,13 +48,22 @@ public class WallSettings : MonoBehaviour
             if (collision.GetComponent<Ball>() != null)
             {
                 Ball destroyedBall = collision.GetComponent<Ball>();
-
                 if (!destroyedBall.IsActiveBall)
                 {
+                    if (_dropedBalls.Count >= 0 && _dropedBalls.Contains(destroyedBall))
+                    {
+                        _dropedBalls.Remove(destroyedBall);
+
+                        if (_dropedBalls.Count <= 0)
+                        {
+                            GameplayEvents.OnBallsDropFinished.Invoke();
+                            GameplayEvents.OnAllFieldActionsEnd.Invoke();
+                        }
+                            
+                    }
                     destroyedBall.DestroyBall();
                 }
-
-                if(destroyedBall.IsActiveBall && _destroyedActiveBall != null)
+                else if (destroyedBall.IsActiveBall && _destroyedActiveBall != null)
                 {
                     _destroyedActiveBall.DestroyBall();
                     _destroyedActiveBall = null;
@@ -101,11 +115,20 @@ public class WallSettings : MonoBehaviour
     private void OnDestroy()
     {
         GameplayEvents.OnActiveBallSetOnField.RemoveListener(RemoveDestroyedActiveBall);
+        GameplayEvents.OnBallsDropStarted.RemoveListener(SetDropedBallsCells);
     }
 
     private void RemoveDestroyedActiveBall(Ball activeBall)
     {
         _destroyedActiveBall = null;
+    }
+
+    private void SetDropedBallsCells(List<HexCell> dropedBallsCells)
+    {
+        foreach(HexCell dropedBallCell in dropedBallsCells)
+        {
+            _dropedBalls.Add(dropedBallCell.GetBall());
+        }
     }
 }
 

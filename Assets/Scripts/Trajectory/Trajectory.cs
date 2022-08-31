@@ -9,9 +9,10 @@ public class Trajectory : MonoBehaviour
     [SerializeField] private TrajectoryLine _trajectoryLinePrefab;
     [Min(1)]
     [SerializeField] private int _linesCount = 1;
+
+    private readonly List<TrajectoryLine> _trajectoryLines = new List<TrajectoryLine>();
     
-    private List<TrajectoryLine> _trajectoryLines;
-    
+
     #region Cache components
     private CameraSettings _cameraSettings;
     public CameraSettings CameraSettings
@@ -27,12 +28,6 @@ public class Trajectory : MonoBehaviour
 
     private void Awake()
     {
-        if (_levelField == null)
-        {
-            Debug.LogError("Level field object is not set!");
-            return;
-        }
-            
         if (_trajectoryLinePrefab == null)
         {
             Debug.LogError("Trajectory prefab is not set!");
@@ -42,14 +37,14 @@ public class Trajectory : MonoBehaviour
         GameplayEvents.OnActiveBallSetOnField.AddListener(HideTrajectory);
         GameplayEvents.OnActiveBallDestroyed.AddListener(HideTrajectory);
 
-        _trajectoryLines = new List<TrajectoryLine>();
+        Transform trajectoryLines = new GameObject("TrajectoryLines").transform;
+        trajectoryLines.SetParent(transform);
 
         for (int i = 0; i < _linesCount; i++)
         {
-            TrajectoryLine lineRenderer = Instantiate(_trajectoryLinePrefab, transform);
+            TrajectoryLine lineRenderer = Instantiate(_trajectoryLinePrefab, trajectoryLines);
             _trajectoryLines.Add(lineRenderer);
         }
-
     }
 
     private void OnDestroy()

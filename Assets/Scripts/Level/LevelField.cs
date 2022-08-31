@@ -8,24 +8,22 @@ public class LevelField : MonoBehaviour
 {
     [Header("General")]
     [SerializeField] private HexGrid _fieldGrid;
-
-    private string _levelAssetsPath;
-    private TextAsset _level;
-    private readonly List<BallTypePrefab> _ballPrefabs = new List<BallTypePrefab>();
     private readonly List<Ball> _ballsOnField = new List<Ball>();
 
     public HexGrid FieldGrid { get => _fieldGrid; }
+    public List<Ball> BallsOnField
+    {
+        get
+        {
+            return _ballsOnField;
+        }
+    }
 
 
     private void Awake()
     {
-        _ballPrefabs.AddRange(LevelDataHolder.LevelData.BallsTypeInLevel);
-        _levelAssetsPath = LevelDataHolder.LevelData.PathToLevelFile;
-        _level = LevelDataHolder.LevelData.LevelFile;
-
         GameplayEvents.OnActiveBallCollided.AddListener(SetActiveBallAtField);
         GameplayEvents.OnActiveBallSetOnField.AddListener(TryDestroyBallGroup);
-        GameplayEvents.OnBallGroupDestroyed.AddListener(FallBalls);
         GameplayEvents.OnAvailableBallsEnd.AddListener(CheckCountOfBallsOnField);
     }
 
@@ -39,13 +37,12 @@ public class LevelField : MonoBehaviour
     {
         GameplayEvents.OnActiveBallSetOnField.RemoveListener(TryDestroyBallGroup);
         GameplayEvents.OnActiveBallCollided.RemoveListener(SetActiveBallAtField);
-        GameplayEvents.OnBallGroupDestroyed.RemoveListener(FallBalls);
         GameplayEvents.OnAvailableBallsEnd.RemoveListener(CheckCountOfBallsOnField);
     }
 
     private void GenerateGameField()
     {
-        string filePath = _levelAssetsPath + "/" + _level.name + ".txt";
+        string filePath = LevelDataHolder.LevelData.PathToLevelFile + "/" + LevelDataHolder.LevelData.LevelFile.name + ".txt";
 
         StreamReader content = new StreamReader(filePath);
         List<string> types = new List<string>();
@@ -65,7 +62,7 @@ public class LevelField : MonoBehaviour
                 fromIndex -= _fieldGrid.Width;
             }
 
-            BallTypePrefab _ballPrefab = _ballPrefabs.FirstOrDefault(t => t.Id == type);
+            BallTypePrefab _ballPrefab = LevelDataHolder.LevelData.BallsTypeInLevel.FirstOrDefault(t => t.Id == type);
 
             if (_ballPrefab.Prefab == null)
             {
@@ -143,7 +140,8 @@ public class LevelField : MonoBehaviour
 
         if (ballGroupCells.Count < 3)
         {
-            GameplayEvents.OnAllGameActionsEnd.Invoke();
+            GameplayEvents.OnAllFieldActionsEnd.Invoke();
+            GameplayEvents.OnGameFieldChanged.Invoke(_ballsOnField);
             return;
         }
             
@@ -156,11 +154,15 @@ public class LevelField : MonoBehaviour
         }
 
         GameplayEvents.OnBallGroupDestroyed.Invoke(_ballsOnField);
+
+        TryDropBalls();
     }
 
-    private void FallBalls(List<Ball> destroyedBalls)
+    private void TryDropBalls()
     {
+        List<HexCell> dropedBallsCells = new List<HexCell>();
         List<HexCell> supposedBallCells = new List<HexCell>();
+
         foreach (Ball ballOnField in _ballsOnField)
         {
             if (ballOnField.IsFirstLineBall)
@@ -181,25 +183,25 @@ public class LevelField : MonoBehaviour
 
         for (int i = 0; i < supposedBallCells.Count; i++)
         {
-            List<HexCell> checkedFallingBallsCells = new List<HexCell>();
-            checkedFallingBallsCells.Add(supposedBallCells[i]);
+            List<HexCell> checkedDropingBallsCells = new List<HexCell>();
+            checkedDropingBallsCells.Add(supposedBallCells[i]);
 
-            Queue<HexCell> checkedFallingBallsEdgeCells = new Queue<HexCell>();
-            checkedFallingBallsEdgeCells.Enqueue(supposedBallCells[i]);
+            Queue<HexCell> checkingDropingBallsCells = new Queue<HexCell>();
+            checkingDropingBallsCells.Enqueue(supposedBallCells[i]);
 
-            while(checkedFallingBallsEdgeCells.Count > 0)
+            while(checkingDropingBallsCells.Count > 0)
             {
-                HexCell cell = checkedFallingBallsEdgeCells.Dequeue();
+                HexCell cell = checkingDropingBallsCells.Dequeue();
 
                 HexCell checkingCellW = cell.GetNeighbor(HexDirection.W);
-                if(checkingCellW != null && !checkedFallingBallsCells.Contains(checkingCellW))
+                if(checkingCellW != null && !checkedDropingBallsCells.Contains(checkingCellW))
                 {
                     if (!supposedBallCells.Contains(checkingCellW))
                     {
                         HexCell checkingCellWNeighborNE = checkingCellW.GetNeighbor(HexDirection.NE);
-                        if (checkingCellWNeighborNE != null && checkingCellWNeighborNE.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellWNeighborNE))
+                        if (checkingCellWNeighborNE != null && checkingCellWNeighborNE.GetBall() != null && !checkedDropingBallsCells.Contains(checkingCellWNeighborNE))
                         {
-                            checkedFallingBallsCells.Clear();
+                            checkedDropingBallsCells.Clear();
                             break;
                         }
                     }
@@ -210,35 +212,35 @@ public class LevelField : MonoBehaviour
 
                     if (checkingCellW.GetBall() != null)
                     {
-                        checkedFallingBallsEdgeCells.Enqueue(checkingCellW);
-                        checkedFallingBallsCells.Add(checkingCellW);
+                        checkingDropingBallsCells.Enqueue(checkingCellW);
+                        checkedDropingBallsCells.Add(checkingCellW);
                     }
                 }
 
                 HexCell checkingCellSW = cell.GetNeighbor(HexDirection.SW);
-                if (checkingCellSW != null && checkingCellSW.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellSW))
+                if (checkingCellSW != null && checkingCellSW.GetBall() != null && !checkedDropingBallsCells.Contains(checkingCellSW))
                 {
-                    checkedFallingBallsEdgeCells.Enqueue(checkingCellSW);
-                    checkedFallingBallsCells.Add(checkingCellSW);
+                    checkingDropingBallsCells.Enqueue(checkingCellSW);
+                    checkedDropingBallsCells.Add(checkingCellSW);
                 }
 
                 HexCell checkingCellSE = cell.GetNeighbor(HexDirection.SE);
-                if (checkingCellSE != null && checkingCellSE.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellSE))
+                if (checkingCellSE != null && checkingCellSE.GetBall() != null && !checkedDropingBallsCells.Contains(checkingCellSE))
                 {
-                    checkedFallingBallsEdgeCells.Enqueue(checkingCellSE);
-                    checkedFallingBallsCells.Add(checkingCellSE);
+                    checkingDropingBallsCells.Enqueue(checkingCellSE);
+                    checkedDropingBallsCells.Add(checkingCellSE);
                 }
 
                 HexCell checkingCellE = cell.GetNeighbor(HexDirection.E);
-                if(checkingCellE != null && !checkedFallingBallsCells.Contains(checkingCellE))
+                if(checkingCellE != null && !checkedDropingBallsCells.Contains(checkingCellE))
                 {
                     if (!supposedBallCells.Contains(checkingCellE))
                     {
                         HexCell checkingCellENeighborNW = checkingCellE.GetNeighbor(HexDirection.NW);
 
-                        if (checkingCellENeighborNW != null && checkingCellENeighborNW.GetBall() != null && !checkedFallingBallsCells.Contains(checkingCellENeighborNW))
+                        if (checkingCellENeighborNW != null && checkingCellENeighborNW.GetBall() != null && !checkedDropingBallsCells.Contains(checkingCellENeighborNW))
                         {
-                            checkedFallingBallsCells.Clear();
+                            checkedDropingBallsCells.Clear();
                             break;
                         }
                     }
@@ -249,20 +251,31 @@ public class LevelField : MonoBehaviour
 
                     if(checkingCellE.GetBall() != null)
                     {
-                        checkedFallingBallsEdgeCells.Enqueue(checkingCellE);
-                        checkedFallingBallsCells.Add(checkingCellE);
+                        checkingDropingBallsCells.Enqueue(checkingCellE);
+                        checkedDropingBallsCells.Add(checkingCellE);
                     }
                 }
             }
 
-            foreach(var b in checkedFallingBallsCells)
-            {
-                DropBallFromField(b.GetBall());
-                RemoveBallFromField(b);
-            }
+            dropedBallsCells.AddRange(checkedDropingBallsCells);
         }
 
-        GameplayEvents.OnAllGameActionsEnd.Invoke();
+        if(dropedBallsCells.Count <= 0)
+        {
+            GameplayEvents.OnAllFieldActionsEnd.Invoke();
+            GameplayEvents.OnGameFieldChanged.Invoke(_ballsOnField);
+            return;
+        }
+
+        GameplayEvents.OnBallsDropStarted.Invoke(dropedBallsCells);
+
+        foreach (HexCell dropedBallCell in dropedBallsCells)
+        {
+            DropBallFromField(dropedBallCell.GetBall());
+            RemoveBallFromField(dropedBallCell);
+        }
+
+        GameplayEvents.OnGameFieldChanged.Invoke(_ballsOnField);
     }
 
     private List<HexCell> GetBallGroupCells(Ball ball)

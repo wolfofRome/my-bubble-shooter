@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine.Events;
+using Van.HexGrid;
 
 public class GameplayEvents
 {
@@ -8,7 +9,9 @@ public class GameplayEvents
     private readonly static UnityEvent<Ball> _onActiveBallSetOnField = new UnityEvent<Ball>();
     private readonly static UnityEvent<Ball> _onActiveBallDestroyed = new UnityEvent<Ball>();
     private readonly static UnityEvent<List<Ball>> _onBallGroupDestroyed = new UnityEvent<List<Ball>>();
-    private readonly static UnityEvent _onAllGameActionsEnd = new UnityEvent();
+    private readonly static UnityEvent<List<HexCell>> _onBallsDropStarted = new UnityEvent<List<HexCell>>();
+    private readonly static UnityEvent _onBallsDropFinished = new UnityEvent();
+    private readonly static UnityEvent _onAllFieldActionsEnd = new UnityEvent();
     private readonly static UnityEvent<List<Ball>> _onAvailableBallCountChanged = new UnityEvent<List<Ball>>();
     private readonly static UnityEvent _onAvailableBallsEnd = new UnityEvent();
     private readonly static UnityEvent _onGameOver = new UnityEvent();
@@ -21,7 +24,9 @@ public class GameplayEvents
     public static UnityEvent<Ball> OnActiveBallSetOnField { get => _onActiveBallSetOnField; }
     public static UnityEvent<Ball> OnActiveBallDestroyed { get => _onActiveBallDestroyed; }
     public static UnityEvent<List<Ball>> OnBallGroupDestroyed { get => _onBallGroupDestroyed; }
-    public static UnityEvent OnAllGameActionsEnd { get => _onAllGameActionsEnd; }
+    public static UnityEvent<List<HexCell>> OnBallsDropStarted { get => _onBallsDropStarted; }
+    public static UnityEvent OnBallsDropFinished { get => _onBallsDropFinished; }
+    public static UnityEvent OnAllFieldActionsEnd { get => _onAllFieldActionsEnd; }
     public static UnityEvent OnAvailableBallsEnd { get => _onAvailableBallsEnd; }
     public static UnityEvent OnGameOver { get => _onGameOver; }
     public static UnityEvent OnGameWin { get => _onGameWin; }
