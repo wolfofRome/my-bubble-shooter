@@ -6,7 +6,7 @@ using System.Linq;
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Trajectory))]
-public class BallCatapult : MonoBehaviour
+public class BallCatapult : MonoBehaviour, IPauseble
 {
     [Header("General")]
     [SerializeField] private LevelField _levelField;
@@ -76,6 +76,8 @@ public class BallCatapult : MonoBehaviour
 
         GameplayEvents.OnAllFieldActionsEnd.AddListener(UnlockCatapult);
         GameplayEvents.OnAllFieldActionsEnd.AddListener(ChangeActiveBall);
+        UIEvents.OnClickPause.AddListener(PauseHandle);
+        UIEvents.OnClickResume.AddListener(UnpauseHandle);
     }
 
     private void Start()
@@ -114,6 +116,8 @@ public class BallCatapult : MonoBehaviour
     {
         GameplayEvents.OnAllFieldActionsEnd.RemoveListener(UnlockCatapult);
         GameplayEvents.OnAllFieldActionsEnd.RemoveListener(ChangeActiveBall);
+        UIEvents.OnClickPause.RemoveListener(PauseHandle);
+        UIEvents.OnClickResume.RemoveListener(UnpauseHandle);
     }
 
     public void LockCatapult()
@@ -124,6 +128,18 @@ public class BallCatapult : MonoBehaviour
     public void UnlockCatapult()
     {
         CatapultBoxCollider.enabled = true;
+    }
+
+    public void PauseHandle()
+    {
+        LockCatapult();
+        Time.timeScale = 0f;
+    }
+
+    public void UnpauseHandle()
+    {
+        UnlockCatapult();
+        Time.timeScale = 1f;
     }
 
     private void PullBackBall()
@@ -208,5 +224,5 @@ public class BallCatapult : MonoBehaviour
     private BallTypePrefab GetRandomBallType(List<BallTypePrefab> ballTypePrefabs)
     {
         return ballTypePrefabs[Random.Range(0, ballTypePrefabs.Count)];
-    }    
+    }
 }

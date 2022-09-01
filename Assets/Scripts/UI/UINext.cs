@@ -22,12 +22,12 @@ public class UINext : MonoBehaviour
 
     private void Awake()
     {
-        UINextButton.onClick.AddListener(Next);
+        EventsSubscribe();
     }
 
     private void OnDestroy()
     {
-        UINextButton.onClick.RemoveListener(Next);
+        EventsUnsubscribe();
     }
 
     private void Next()
@@ -42,5 +42,15 @@ public class UINext : MonoBehaviour
 
         if(_currentCanvas != null)
             _currentCanvas.gameObject.SetActive(false);
+    }
+
+    protected virtual void EventsSubscribe()
+    {
+        UINextButton.onClick.AddListener(Next);
+    }
+
+    protected virtual void EventsUnsubscribe()
+    {
+        UINextButton.onClick.RemoveListener(Next);
     }
 }

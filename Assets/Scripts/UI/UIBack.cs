@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
 [RequireComponent(typeof(Button))]
 public class UIBack : MonoBehaviour
 {
@@ -23,23 +22,35 @@ public class UIBack : MonoBehaviour
 
     private void Awake()
     {
-        UIBackButton.onClick.AddListener(Back);
+        EventsSubscribe();
     }
 
     private void OnDestroy()
     {
-        UIBackButton.onClick.RemoveListener(Back);
+        EventsUnsubscribe();
     }
 
     private void Back()
     {
-        if(_backCanvas == null)
+        if(_currentCanvas == null)
         {
-            Debug.LogWarning("Next canvas variable is not set");
+            Debug.LogWarning("Current canvas is not set");
             return;
         }
 
-        _backCanvas.gameObject.SetActive(true);
+        if(_backCanvas != null)
+            _backCanvas.gameObject.SetActive(true);
+
         _currentCanvas.gameObject.SetActive(false);
+    }
+
+    protected virtual void EventsSubscribe()
+    {
+        UIBackButton.onClick.AddListener(Back);
+    }
+
+    protected virtual void EventsUnsubscribe()
+    {
+        UIBackButton.onClick.RemoveListener(Back);
     }
 }
