@@ -15,6 +15,7 @@ public class GameplayEvents
     private readonly static UnityEvent<Ball> _onNextBallChanged = new UnityEvent<Ball>();
     private readonly static UnityEvent<int> _onAvailableBallsCountChanged = new UnityEvent<int>();
     private readonly static UnityEvent _onAvailableBallsEnd = new UnityEvent();
+    private readonly static UnityEvent _onCountBallsOnFieldChecked = new UnityEvent();
     private readonly static UnityEvent<List<Ball>> _onGameFieldChanged = new UnityEvent<List<Ball>>();
 
     private readonly static UnityEvent _onGameOver = new UnityEvent();
@@ -32,6 +33,7 @@ public class GameplayEvents
     public static UnityEvent<Ball> OnNextBallChanged { get => _onNextBallChanged; }
     public static UnityEvent<int> OnAvailableBallsCountChanged { get => _onAvailableBallsCountChanged; }
     public static UnityEvent OnAvailableBallsEnd { get => _onAvailableBallsEnd; }
+    public static UnityEvent OnCountBallsOnFieldChecked { get => _onCountBallsOnFieldChecked; }
     public static UnityEvent OnGameOver { get => _onGameOver; }
     public static UnityEvent OnGameWin { get => _onGameWin; }
     public static UnityEvent<List<Ball>> OnGameFieldChanged { get => _onGameFieldChanged; }

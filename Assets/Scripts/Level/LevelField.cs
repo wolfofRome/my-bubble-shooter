@@ -24,7 +24,7 @@ public class LevelField : MonoBehaviour
     {
         GameplayEvents.OnActiveBallCollided.AddListener(SetActiveBallAtField);
         GameplayEvents.OnActiveBallSetOnField.AddListener(TryDestroyBallGroup);
-        GameplayEvents.OnAvailableBallsEnd.AddListener(CheckCountOfBallsOnField);
+        GameplayEvents.OnAllFieldActionsEnd.AddListener(CheckCountBallsOnField);
     }
 
     private void Start()
@@ -37,7 +37,7 @@ public class LevelField : MonoBehaviour
     {
         GameplayEvents.OnActiveBallSetOnField.RemoveListener(TryDestroyBallGroup);
         GameplayEvents.OnActiveBallCollided.RemoveListener(SetActiveBallAtField);
-        GameplayEvents.OnAvailableBallsEnd.RemoveListener(CheckCountOfBallsOnField);
+        GameplayEvents.OnAllFieldActionsEnd.RemoveListener(CheckCountBallsOnField);
     }
 
     private void GenerateGameField()
@@ -310,11 +310,11 @@ public class LevelField : MonoBehaviour
         return ballGroupCells;
     }
 
-    private void CheckCountOfBallsOnField()
+    private void CheckCountBallsOnField()
     {
-        if (_ballsOnField.Count > 0)
-            GameplayEvents.OnGameOver.Invoke();
-        else
+        if (_ballsOnField.Count <= 0)
             GameplayEvents.OnGameWin.Invoke();
+        else
+            GameplayEvents.OnCountBallsOnFieldChecked.Invoke();
     }
 }

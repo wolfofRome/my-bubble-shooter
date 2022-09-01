@@ -9,7 +9,6 @@ using System.Linq;
 public class BallCatapult : MonoBehaviour, IPauseble
 {
     [Header("General")]
-    [SerializeField] private LevelField _levelField;
     [SerializeField] private float _maxPullBackDistance = 2f;
     [SerializeField] private float _nonShootPullBackDistance = 0.5f;
     [Range(10f, 180f)]
@@ -68,14 +67,9 @@ public class BallCatapult : MonoBehaviour, IPauseble
 
     private void Awake()
     {
-        if(_levelField == null)
-        {
-            Debug.LogError("Level field is not set!");
-            return;
-        }
-
         GameplayEvents.OnAllFieldActionsEnd.AddListener(UnlockCatapult);
         GameplayEvents.OnAllFieldActionsEnd.AddListener(ChangeActiveBall);
+        GameplayEvents.OnCountBallsOnFieldChecked.AddListener(CheckAvailableBallsCount);
 
         UIEvents.OnClickPause.AddListener(PauseHandle);
         UIEvents.OnClickResume.AddListener(UnpauseHandle);
@@ -119,6 +113,8 @@ public class BallCatapult : MonoBehaviour, IPauseble
     {
         GameplayEvents.OnAllFieldActionsEnd.RemoveListener(UnlockCatapult);
         GameplayEvents.OnAllFieldActionsEnd.RemoveListener(ChangeActiveBall);
+        GameplayEvents.OnCountBallsOnFieldChecked.RemoveListener(CheckAvailableBallsCount);
+
         UIEvents.OnClickPause.RemoveListener(PauseHandle);
         UIEvents.OnClickResume.RemoveListener(UnpauseHandle);
     }
@@ -192,7 +188,7 @@ public class BallCatapult : MonoBehaviour, IPauseble
             GameplayEvents.OnAvailableBallsEnd.Invoke();
             return;
         }
-
+            
         GameplayEvents.OnAvailableBallsCountChanged.Invoke(_availableBalls.Count);
 
         _activeBall.gameObject.SetActive(true);
@@ -202,6 +198,12 @@ public class BallCatapult : MonoBehaviour, IPauseble
 
         if (_availableBalls.Count > 0)
             GameplayEvents.OnNextBallChanged.Invoke(_availableBalls.Peek());
+    }
+
+    private void CheckAvailableBallsCount()
+    {
+        if (_availableBalls.Count <= 0)
+            GameplayEvents.OnGameOver.Invoke();
     }
 
     private float GetPullBackDistance()
