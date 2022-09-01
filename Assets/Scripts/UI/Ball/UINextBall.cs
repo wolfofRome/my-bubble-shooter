@@ -1,19 +1,43 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Image))]
 public class UINextBall : MonoBehaviour
 {
-    #region Cache Components
-    private Image _nextBallImage;
-    public Image NextBallImage
+    [SerializeField] private Image _nextBallImage;
+    [SerializeField] private Text _availableBallsCount;
+
+    private void Awake()
     {
-        get
+        if(_nextBallImage == null)
         {
-            if (_nextBallImage == null)
-                _nextBallImage = GetComponent<Image>();
-            return _nextBallImage;
+            Debug.LogError("Next ball image is not set!");    
         }
+
+        if(_availableBallsCount == null)
+        {
+            Debug.LogError("Available balls count text is not set!");
+        }
+
+        GameplayEvents.OnNextBallChanged.AddListener(ChangeNextBallImage);
+        GameplayEvents.OnAvailableBallsCountChanged.AddListener(ChangeAvailableBallsCount);
     }
-    #endregion
+
+    private void OnDestroy()
+    {
+        GameplayEvents.OnNextBallChanged.RemoveListener(ChangeNextBallImage);
+        GameplayEvents.OnAvailableBallsCountChanged.RemoveListener(ChangeAvailableBallsCount);
+    }
+
+    private void ChangeNextBallImage(Ball nextBall)
+    {
+        _nextBallImage.color = nextBall.BallSpriteRenderer.color;        
+    }
+
+    private void ChangeAvailableBallsCount(int availableBallsCount)
+    {
+        if (availableBallsCount <= 0)
+            _nextBallImage.enabled = false;
+
+        _availableBallsCount.text = availableBallsCount.ToString();
+    }
 }

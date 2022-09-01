@@ -12,12 +12,14 @@ public class GameplayEvents
     private readonly static UnityEvent<List<HexCell>> _onBallsDropStarted = new UnityEvent<List<HexCell>>();
     private readonly static UnityEvent _onBallsDropFinished = new UnityEvent();
     private readonly static UnityEvent _onAllFieldActionsEnd = new UnityEvent();
-    private readonly static UnityEvent<List<Ball>> _onAvailableBallCountChanged = new UnityEvent<List<Ball>>();
+    private readonly static UnityEvent<Ball> _onNextBallChanged = new UnityEvent<Ball>();
+    private readonly static UnityEvent<int> _onAvailableBallsCountChanged = new UnityEvent<int>();
     private readonly static UnityEvent _onAvailableBallsEnd = new UnityEvent();
+    private readonly static UnityEvent<List<Ball>> _onGameFieldChanged = new UnityEvent<List<Ball>>();
+
     private readonly static UnityEvent _onGameOver = new UnityEvent();
     private readonly static UnityEvent _onGameWin = new UnityEvent();
-    private readonly static UnityEvent<List<Ball>> _onGameFieldChanged = new UnityEvent<List<Ball>>();
-    private readonly static UnityEvent<int> _onCountAvailableBallsChanged = new UnityEvent<int>();
+    
 
     public static UnityEvent OnGameFieldGenerated { get => _onGameFieldGenerated; }
     public static UnityEvent<Ball> OnActiveBallCollided { get => _onActiveBallCollided; }
@@ -27,6 +29,8 @@ public class GameplayEvents
     public static UnityEvent<List<HexCell>> OnBallsDropStarted { get => _onBallsDropStarted; }
     public static UnityEvent OnBallsDropFinished { get => _onBallsDropFinished; }
     public static UnityEvent OnAllFieldActionsEnd { get => _onAllFieldActionsEnd; }
+    public static UnityEvent<Ball> OnNextBallChanged { get => _onNextBallChanged; }
+    public static UnityEvent<int> OnAvailableBallsCountChanged { get => _onAvailableBallsCountChanged; }
     public static UnityEvent OnAvailableBallsEnd { get => _onAvailableBallsEnd; }
     public static UnityEvent OnGameOver { get => _onGameOver; }
     public static UnityEvent OnGameWin { get => _onGameWin; }
