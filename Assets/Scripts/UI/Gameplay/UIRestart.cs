@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class UIRestart : MonoBehaviour
+public sealed class UIRestart : UIChangeScene
 {
-    // Start is called before the first frame update
-    void Start()
+    protected override void EventSubscribe()
     {
-        
+        base.EventSubscribe();
+        ChangeSceneButton.onClick.AddListener(ClickRestart);
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void EventUnsubscribe()
     {
-        
+        base.EventUnsubscribe();
+        ChangeSceneButton.onClick.AddListener(ClickRestart);
+    }
+
+    public void ClickRestart()
+    {
+        UIEvents.OnClickRestart.Invoke();
     }
 }

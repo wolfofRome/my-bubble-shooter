@@ -76,6 +76,7 @@ public class BallCatapult : MonoBehaviour, IPauseble
 
         GameplayEvents.OnAllFieldActionsEnd.AddListener(UnlockCatapult);
         GameplayEvents.OnAllFieldActionsEnd.AddListener(ChangeActiveBall);
+
         UIEvents.OnClickPause.AddListener(PauseHandle);
         UIEvents.OnClickResume.AddListener(UnpauseHandle);
     }
@@ -84,6 +85,8 @@ public class BallCatapult : MonoBehaviour, IPauseble
     {
         _availableBallsHolder = new GameObject("AvailableBallsHolder").transform;
         _availableBallsHolder.SetParent(transform);
+
+        UnpauseHandle();
 
         GenerateAvailableBalls(LevelDataHolder.LevelData.BallsTypeInLevel, LevelDataHolder.LevelData.CountAvailableBalls);
         ChangeActiveBall();
