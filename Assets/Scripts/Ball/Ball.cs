@@ -152,8 +152,8 @@ public class Ball : MonoBehaviour
     {
         if (IsActiveBall)
         {
+            IsActiveBall = false;
             GameplayEvents.OnActiveBallDestroyed.Invoke(this);
-            GameplayEvents.OnAllFieldActionsEnd.Invoke();
         }
 
         gameObject.SetActive(false);

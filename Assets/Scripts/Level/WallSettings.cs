@@ -67,6 +67,7 @@ public class WallSettings : MonoBehaviour
                 {
                     _destroyedActiveBall.DestroyBall();
                     _destroyedActiveBall = null;
+                    GameplayEvents.OnAllFieldActionsEnd.Invoke();
                 }
             }
         }

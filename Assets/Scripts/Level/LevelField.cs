@@ -90,7 +90,7 @@ public class LevelField : MonoBehaviour
 
         if(cell == null)
         {
-            Debug.LogWarning("Cell is not found");
+            Debug.LogWarning("Cell is not found");            
             return;
         }
 
@@ -111,8 +111,15 @@ public class LevelField : MonoBehaviour
     private void SetActiveBallAtField(Ball activeBall)
     {
         HexCell cell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position);
-        SetBallAtField(activeBall, cell);
+        if (cell == null)
+        {
+            activeBall.DestroyBall();
+            GameplayEvents.OnAllFieldActionsEnd.Invoke();
+            return;
+        }
+
         activeBall.IsActiveBall = false;
+        SetBallAtField(activeBall, cell);
         GameplayEvents.OnActiveBallSetOnField.Invoke(activeBall);
     }
 
