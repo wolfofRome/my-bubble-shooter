@@ -105,6 +105,7 @@ public class BallCatapult : MonoBehaviour, IPauseble
             return; 
         }
 
+        _activeBall.CircleCollider.enabled = true;
         _activeBall.MoveBall(CalculateForceForBall());
         LockCatapult();
     }
@@ -195,6 +196,7 @@ public class BallCatapult : MonoBehaviour, IPauseble
         _activeBall.transform.SetParent(transform);
         _activeBall.transform.position = transform.position;
         _activeBall.IsActiveBall = true;
+        _activeBall.CircleCollider.enabled = false;
 
         if (_availableBalls.Count > 0)
             GameplayEvents.OnNextBallChanged.Invoke(_availableBalls.Peek());

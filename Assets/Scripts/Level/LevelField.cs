@@ -40,11 +40,17 @@ public class LevelField : MonoBehaviour
 
     private void GenerateGameField()
     {
-        string filePath = LevelDataHolder.LevelData.PathToLevelFile + "/" + LevelDataHolder.LevelData.LevelFile.name + ".txt";
+        TextAsset levelFile = Resources.Load<TextAsset>(LevelDataHolder.LevelData.PathToLevelFile + "/" + LevelDataHolder.LevelData.LevelFile.name);
 
-        StreamReader content = new StreamReader(filePath);
+        if(levelFile == null)
+        {
+            Debug.LogError("Level file is not found!");
+            return;
+        }
+        
         List<string> types = new List<string>();
 
+        StringReader content = new StringReader(levelFile.text);
         while (content.Peek() >= 0)
         {
             types.AddRange(content.ReadLine().Split('-'));
