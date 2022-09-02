@@ -15,7 +15,7 @@ MonoBehaviour:
   _pathToLevelFile: Assets/Resources/Levels
   _levelFile: {fileID: 4900000, guid: 5ebce29cbd1b2c64bbc57a8776fab017, type: 3}
   _levelName: Level 1
-  _countAvailableBalls: 30
+  _countAvailableBalls: 31
   _ballsTypeInLevel:
   - _id: BB
     _prefab: {fileID: 4632960509643196600, guid: d454c61ee106346429db9f070d3db6c8, type: 3}
@@ -25,3 +25,7 @@ MonoBehaviour:
     _prefab: {fileID: 4632960509643196600, guid: 0d15be2e4d1dda24ea0983c3816278fa, type: 3}
   - _id: BR
     _prefab: {fileID: 4632960509643196600, guid: 0f46c169a5ed03f468f5047901494639, type: 3}
+  _ballDestroyScore: 150
+  _ballDestroyScaleGroup: 4
+  _ballDropScore: 200
+  _ballDropScaleGroup: 2

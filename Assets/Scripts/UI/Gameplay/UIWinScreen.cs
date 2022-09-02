@@ -1,8 +1,9 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIWinScreen : MonoBehaviour
 {
-    [SerializeField] private bool _hideOnAwake; 
+    [SerializeField] private bool _hideOnAwake;
 
     private void Awake()
     {

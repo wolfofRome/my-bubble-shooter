@@ -160,6 +160,13 @@ public class LevelField : MonoBehaviour
             destroyedBall.DestroyBall();
         }
 
+        int scale = Mathf.RoundToInt(ballGroupCells.Count / LevelDataHolder.LevelData.BallDestroyScaleGroup);
+        if (scale <= 0)
+            scale = 1;
+
+        int finalScore = ballGroupCells.Count * LevelDataHolder.LevelData.BallDestroyScore * scale;
+        GameplayEvents.OnAddScore.Invoke(finalScore);
+
         GameplayEvents.OnBallGroupDestroyed.Invoke(_ballsOnField);
 
         TryDropBalls();
@@ -281,6 +288,13 @@ public class LevelField : MonoBehaviour
             DropBallFromField(dropedBallCell.GetBall());
             RemoveBallFromField(dropedBallCell);
         }
+
+        int scale = Mathf.RoundToInt(dropedBallsCells.Count / LevelDataHolder.LevelData.BallDropScaleGroup);
+        if (scale <= 0)
+            scale = 1;
+
+        int finalScore = dropedBallsCells.Count * LevelDataHolder.LevelData.BallDropScore * scale;
+        GameplayEvents.OnAddScore.Invoke(finalScore);
 
         GameplayEvents.OnGameFieldChanged.Invoke(_ballsOnField);
     }

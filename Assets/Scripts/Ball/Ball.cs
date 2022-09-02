@@ -47,6 +47,7 @@ public class Ball : MonoBehaviour
         }
     }
 
+
     #region Cache Components
     private Rigidbody2D _rbBall;
     public Rigidbody2D RbBall
@@ -154,6 +155,10 @@ public class Ball : MonoBehaviour
         {
             IsActiveBall = false;
             GameplayEvents.OnActiveBallDestroyed.Invoke(this);
+        }
+        else
+        {
+            GameplayEvents.OnBallDestoyed.Invoke(this);
         }
 
         gameObject.SetActive(false);

@@ -61,6 +61,7 @@ public class WallSettings : MonoBehaviour
                         }
                             
                     }
+
                     destroyedBall.DestroyBall();
                 }
                 else if (destroyedBall.IsActiveBall && _destroyedActiveBall != null)

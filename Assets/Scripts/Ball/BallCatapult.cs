@@ -202,7 +202,7 @@ public class BallCatapult : MonoBehaviour, IPauseble
 
     private void CheckAvailableBallsCount()
     {
-        if (_availableBalls.Count <= 0)
+        if (_availableBalls.Count <= 0 && _activeBall == null)
             GameplayEvents.OnGameOver.Invoke();
     }
 
