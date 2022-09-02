@@ -63,6 +63,8 @@ public class Trajectory : MonoBehaviour
         
         foreach (TrajectoryLine trajectoryLine in _trajectoryLines)
         {
+            trajectoryLine.TrajectoryLineRenderer.startColor = activeBall.BallSpriteRenderer.color;
+            trajectoryLine.TrajectoryLineRenderer.endColor = activeBall.BallSpriteRenderer.color;
             trajectoryLine.UpdateLineScale();
             points.Add(currentPoint);
 

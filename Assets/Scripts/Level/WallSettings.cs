@@ -7,6 +7,7 @@ public class WallSettings : MonoBehaviour
 {
     [SerializeField] private WallPosition _position;
     [SerializeField] private WallFunction _wallFunction;
+    [SerializeField] private bool _destroyOnExit;
 
     private Vector2 _wallNormal;
     private Ball _destroyedActiveBall;
@@ -43,48 +44,44 @@ public class WallSettings : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Ball collisionBall;
+        if (!collision.TryGetComponent<Ball>(out collisionBall))
+            return;
+
         if (WallFunctionValue == WallFunction.Destroy)
         {
-            if (collision.GetComponent<Ball>() != null)
+            if (!collisionBall.IsActiveBall)
             {
-                Ball destroyedBall = collision.GetComponent<Ball>();
-                if (!destroyedBall.IsActiveBall)
-                {
-                    if (_dropedBalls.Count >= 0 && _dropedBalls.Contains(destroyedBall))
-                    {
-                        _dropedBalls.Remove(destroyedBall);
+                if (_dropedBalls.Count >= 0 && _dropedBalls.Contains(collisionBall))
+                    _dropedBalls.Remove(collisionBall);          
+                
+                collisionBall.DestroyBall();
 
-                        if (_dropedBalls.Count <= 0)
-                        {
-                            GameplayEvents.OnBallsDropFinished.Invoke();
-                            GameplayEvents.OnAllFieldActionsEnd.Invoke();
-                        }
-                            
-                    }
-
-                    destroyedBall.DestroyBall();
-                }
-                else if (destroyedBall.IsActiveBall && _destroyedActiveBall != null)
+                if (_dropedBalls.Count <= 0)
                 {
-                    _destroyedActiveBall.DestroyBall();
-                    _destroyedActiveBall = null;
+                    GameplayEvents.OnBallsDropFinished.Invoke();
                     GameplayEvents.OnAllFieldActionsEnd.Invoke();
                 }
+            }
+            else if (collisionBall.IsActiveBall && _destroyedActiveBall != null)
+            {
+                _destroyedActiveBall.DestroyBall();
+                _destroyedActiveBall = null;
+                GameplayEvents.OnAllFieldActionsEnd.Invoke();
             }
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        Ball exitCollisionBall;
+        if (!collision.TryGetComponent<Ball>(out exitCollisionBall))
+            return;
+        
         if (WallFunctionValue == WallFunction.Destroy)
         {
-            if (collision.GetComponent<Ball>())
-            {
-                Ball ball = collision.GetComponent<Ball>();
-
-                if (ball.IsActiveBall)
-                    _destroyedActiveBall = ball;
-            }
+            if (exitCollisionBall.IsActiveBall)
+                _destroyedActiveBall = exitCollisionBall;   
         }
     }
 
@@ -107,10 +104,6 @@ public class WallSettings : MonoBehaviour
                 GameplayEvents.OnActiveBallCollided.Invoke(collisionBall);
             }
                 
-        }
-        else if(WallFunctionValue == WallFunction.Destroy)
-        {
-            collisionBall.DestroyBall();
         }
     }
 

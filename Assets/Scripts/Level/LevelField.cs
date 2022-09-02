@@ -23,7 +23,6 @@ public class LevelField : MonoBehaviour
     private void Awake()
     {
         GameplayEvents.OnActiveBallCollided.AddListener(SetActiveBallAtField);
-        GameplayEvents.OnActiveBallSetOnField.AddListener(TryDestroyBallGroup);
         GameplayEvents.OnAllFieldActionsEnd.AddListener(CheckCountBallsOnField);
     }
 
@@ -35,7 +34,6 @@ public class LevelField : MonoBehaviour
 
     private void OnDestroy()
     {
-        GameplayEvents.OnActiveBallSetOnField.RemoveListener(TryDestroyBallGroup);
         GameplayEvents.OnActiveBallCollided.RemoveListener(SetActiveBallAtField);
         GameplayEvents.OnAllFieldActionsEnd.RemoveListener(CheckCountBallsOnField);
     }
@@ -113,14 +111,28 @@ public class LevelField : MonoBehaviour
         HexCell cell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position);
         if (cell == null)
         {
-            activeBall.DestroyBall();
-            GameplayEvents.OnAllFieldActionsEnd.Invoke();
-            return;
+            HexCell leftCell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position + (Vector2.left * activeBall.BallRadius));
+            HexCell rightCell = _fieldGrid.GetCellFromPosition(activeBall.RbBall.position + (Vector2.right * activeBall.BallRadius));
+
+            if (leftCell != null)
+                cell = leftCell;
+            else
+                cell = rightCell;
+
+            if(leftCell == null && rightCell == null)
+            {
+                activeBall.DestroyBall();
+                GameplayEvents.OnAllFieldActionsEnd.Invoke();
+                return;
+            }
         }
 
         activeBall.IsActiveBall = false;
         SetBallAtField(activeBall, cell);
+
         GameplayEvents.OnActiveBallSetOnField.Invoke(activeBall);
+
+        TryDestroyBallGroup(cell);
     }
 
     private void RemoveBallFromField(HexCell cell)
@@ -135,9 +147,9 @@ public class LevelField : MonoBehaviour
         dropBall.JointConnection.enabled = false;
     }
 
-    private void TryDestroyBallGroup(Ball ball)
+    private void TryDestroyBallGroup(HexCell ballCell)
     {
-        List<HexCell> ballGroupCells = GetBallGroupCells(ball);
+        List<HexCell> ballGroupCells = GetBallGroupCells(ballCell);
 
         if(ballGroupCells == null)
         {
@@ -299,9 +311,9 @@ public class LevelField : MonoBehaviour
         GameplayEvents.OnGameFieldChanged.Invoke(_ballsOnField);
     }
 
-    private List<HexCell> GetBallGroupCells(Ball ball)
+    private List<HexCell> GetBallGroupCells(HexCell ballCell)
     {
-        HexCell cell = _fieldGrid.GetCellFromPosition(ball.RbBall.position);
+        HexCell cell = ballCell;
 
         if (cell == null)
             return null;
