@@ -1,7 +1,6 @@
 using UnityEngine;
-using UnityEngine.UI;
 
-public class UIWinScreen : MonoBehaviour
+public sealed class UIWinScreen : MonoBehaviour
 {
     [SerializeField] private bool _hideOnAwake;
 

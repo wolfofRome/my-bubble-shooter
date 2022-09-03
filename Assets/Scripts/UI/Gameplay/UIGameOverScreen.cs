@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UIGameOverScreen : MonoBehaviour
+public sealed class UIGameOverScreen : MonoBehaviour
 {
     [SerializeField] private bool _hideOnAwake;
 

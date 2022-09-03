@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIScoreCounter : MonoBehaviour
+public sealed class UIScoreCounter : MonoBehaviour
 {
     [SerializeField] private Text _scoreCounter;
 

@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class UIReturnToMainMenu : UIChangeScene
+public sealed class UIReturnToMainMenu : UIChangeScene
 {
     protected override void EventSubscribe()
     {
