@@ -8,7 +8,6 @@ public class FpsCounter : MonoBehaviour
     [Header("FPS Buffer")]
     [SerializeField] private int _frameRange = 60;
 
-
     private int[] _fpsBuffer;
     private int _fpsBufferIndex;
 
@@ -21,8 +20,6 @@ public class FpsCounter : MonoBehaviour
 
     private void Awake()
     {
-        Application.targetFrameRate = 60;
-
         if (_fpsBuffer == null || _frameRange <= 0)
             IninitializeBuffer();
     }

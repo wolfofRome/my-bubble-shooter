@@ -217,8 +217,9 @@ RectTransform:
   m_Children:
   - {fileID: 1995820728}
   - {fileID: 1252903821}
+  - {fileID: 1263973455}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -241,6 +242,10 @@ PrefabInstance:
       value: 'Exit
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 4638284297785861311, guid: 96c094d34679ba84ea759488a227c18d, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4638284298425726752, guid: 96c094d34679ba84ea759488a227c18d, type: 3}
       propertyPath: m_Name
@@ -713,7 +718,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -781,6 +786,10 @@ PrefabInstance:
       value: 'Information
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 4638284297785861311, guid: 96c094d34679ba84ea759488a227c18d, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4638284298425726752, guid: 96c094d34679ba84ea759488a227c18d, type: 3}
       propertyPath: m_Name
@@ -1037,13 +1046,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1263973452}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -360, y: -640, z: 0}
+  m_LocalScale: {x: 0.6666667, y: 0.6666667, z: 0.6666667}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_Father: {fileID: 193034629}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1506510679
 GameObject:
@@ -1124,6 +1133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1825189219}
   - component: {fileID: 1825189220}
+  - component: {fileID: 1825189221}
   m_Layer: 5
   m_Name: UILevelList
   m_TagString: Untagged
@@ -1169,13 +1179,30 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
-  m_StartCorner: 2
+  m_ChildAlignment: 1
+  m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 150, y: 150}
-  m_Spacing: {x: 70, y: 50}
+  m_CellSize: {x: 125, y: 125}
+  m_Spacing: {x: 50, y: 70}
   m_Constraint: 0
   m_ConstraintCount: 2
+--- !u!114 &1825189221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1825189218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad0deb9fdb0eee74795fd4a6f2d41afc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levels:
+  - {fileID: 11400000, guid: 5fcbb88a347e88c4fb6b334031c8ed25, type: 2}
+  - {fileID: 11400000, guid: 1c163d9846b75fa4a9b9f98fb948e177, type: 2}
+  - {fileID: 11400000, guid: 3e3ded8a584fcde4fb96f8fcd3611d31, type: 2}
+  _uiLevelPrefab: {fileID: 7392740402415704243, guid: 6025e9709d7798041b185b71969faa9b, type: 3}
 --- !u!1 &1871814604
 GameObject:
   m_ObjectHideFlags: 0
@@ -1301,6 +1328,10 @@ PrefabInstance:
     - target: {fileID: 4638284297785861309, guid: 96c094d34679ba84ea759488a227c18d, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 4638284297785861311, guid: 96c094d34679ba84ea759488a227c18d, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4638284298425726752, guid: 96c094d34679ba84ea759488a227c18d, type: 3}
       propertyPath: m_Name
@@ -1494,6 +1525,10 @@ PrefabInstance:
     - target: {fileID: 7392740402415704245, guid: 6025e9709d7798041b185b71969faa9b, type: 3}
       propertyPath: m_Name
       value: LevelButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392740402415704245, guid: 6025e9709d7798041b185b71969faa9b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7392740402415704245, guid: 6025e9709d7798041b185b71969faa9b, type: 3}
       propertyPath: m_StaticEditorFlags

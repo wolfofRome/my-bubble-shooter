@@ -40,6 +40,12 @@ public class LevelField : MonoBehaviour
 
     private void GenerateGameField()
     {
+        if (LevelDataHolder.LevelData == null)
+        {
+            Debug.LogError("Level data is not set!");
+            return;
+        }
+
         TextAsset levelFile = Resources.Load<TextAsset>(LevelDataHolder.LevelData.PathToLevelFile + "/" + LevelDataHolder.LevelData.LevelFile.name);
 
         if(levelFile == null)

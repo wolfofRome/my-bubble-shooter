@@ -65,6 +65,8 @@ public class BallCatapult : MonoBehaviour, IPauseble
 
     private void Awake()
     {
+        Application.targetFrameRate = 70;
+
         GameplayEvents.OnAllFieldActionsEnd.AddListener(UnlockCatapult);
         GameplayEvents.OnAllFieldActionsEnd.AddListener(ChangeActiveBall);
         GameplayEvents.OnCountBallsOnFieldChecked.AddListener(CheckAvailableBallsCount);
@@ -79,6 +81,12 @@ public class BallCatapult : MonoBehaviour, IPauseble
         _availableBallsHolder.SetParent(transform);
 
         UnpauseHandle();
+
+        if (LevelDataHolder.LevelData == null)
+        {
+            Debug.LogError("Level data is not set!");
+            return;
+        }
 
         GenerateAvailableBalls(LevelDataHolder.LevelData.BallsTypeInLevel, LevelDataHolder.LevelData.CountAvailableBalls);
         ChangeActiveBall();
