@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,14 +10,9 @@ public class UINextBall : MonoBehaviour
     private void Awake()
     {
         if(_nextBallImage == null)
-        {
-            Debug.LogError("Next ball image is not set!");    
-        }
-
+            throw new ArgumentNullException(nameof(_nextBallImage), "Next ball image is not set!");    
         if(_availableBallsCount == null)
-        {
-            Debug.LogError("Available balls count text is not set!");
-        }
+            throw new ArgumentNullException(nameof(_availableBallsCount), "Available balls count text is not set!");
 
         GameplayEvents.OnNextBallChanged.AddListener(ChangeNextBallImage);
         GameplayEvents.OnAvailableBallsCountChanged.AddListener(ChangeAvailableBallsCount);
